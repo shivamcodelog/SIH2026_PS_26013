@@ -1,0 +1,1121 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "metadata": {
+    "dataset": "SIH26013 Synthetic Demo Dataset",
+    "description": "SYNTHETIC DATA ONLY. Generated for the SIH26013 prototype. Does not represent any real land records, government data, or actual geography.",
+    "study_area": "Synthetic Vastu Nagar ward (fictional urban block)",
+    "crs": "EPSG:4326 (WGS 84)",
+    "seed": 42,
+    "generator": "generate_demo_data.py"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09,
+              21.14
+            ],
+            [
+              79.09024078194108,
+              21.14
+            ],
+            [
+              79.09024078194108,
+              21.140179662235
+            ],
+            [
+              79.09,
+              21.140179662235
+            ],
+            [
+              79.09,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P101",
+        "owner_name": "Ravi Kumar",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P101/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024078194108,
+              21.14
+            ],
+            [
+              79.09048156388215,
+              21.14
+            ],
+            [
+              79.09048156388215,
+              21.140179662235
+            ],
+            [
+              79.09024078194108,
+              21.140179662235
+            ],
+            [
+              79.09024078194108,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P102",
+        "owner_name": "Priya Sharma",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P102/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048156388216,
+              21.14
+            ],
+            [
+              79.09072234582324,
+              21.14
+            ],
+            [
+              79.09072234582324,
+              21.140179662235
+            ],
+            [
+              79.09048156388216,
+              21.140179662235
+            ],
+            [
+              79.09048156388216,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P103",
+        "owner_name": "Ravi Kumar",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P103/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072234582324,
+              21.14
+            ],
+            [
+              79.09096312776431,
+              21.14
+            ],
+            [
+              79.09096312776431,
+              21.140179662235
+            ],
+            [
+              79.09072234582324,
+              21.140179662235
+            ],
+            [
+              79.09072234582324,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P104",
+        "owner_name": "Sunita Patel",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P104/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096312776431,
+              21.14
+            ],
+            [
+              79.09120390970538,
+              21.14
+            ],
+            [
+              79.09120390970538,
+              21.140179662235
+            ],
+            [
+              79.09096312776431,
+              21.140179662235
+            ],
+            [
+              79.09096312776431,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P105",
+        "owner_name": "Mohan Das",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P105/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.0912039097054,
+              21.14
+            ],
+            [
+              79.09144469164647,
+              21.14
+            ],
+            [
+              79.09144469164647,
+              21.140179662235
+            ],
+            [
+              79.0912039097054,
+              21.140179662235
+            ],
+            [
+              79.0912039097054,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P106",
+        "owner_name": "Lakshmi Naidu",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P106/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09,
+              21.140179662235
+            ],
+            [
+              79.09024078194108,
+              21.140179662235
+            ],
+            [
+              79.09024078194108,
+              21.140359324469998
+            ],
+            [
+              79.09,
+              21.140359324469998
+            ],
+            [
+              79.09,
+              21.140179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P107",
+        "owner_name": "Deepak Verma",
+        "area": 500.0,
+        "land_area": 500.0,
+        "survey_no": "SY/P107/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024078194108,
+              21.140179662235
+            ],
+            [
+              79.09048693531498,
+              21.140179662235
+            ],
+            [
+              79.09048693531498,
+              21.1403465238256
+            ],
+            [
+              79.09024078194108,
+              21.1403465238256
+            ],
+            [
+              79.09024078194108,
+              21.140179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P108",
+        "owner_name": "Anjali Mehta",
+        "area": 474.7,
+        "land_area": 474.7,
+        "survey_no": "SY/P108/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048156388216,
+              21.140179662235
+            ],
+            [
+              79.09072915319054,
+              21.140179662235
+            ],
+            [
+              79.09072915319054,
+              21.140369893448646
+            ],
+            [
+              79.09048156388216,
+              21.140369893448646
+            ],
+            [
+              79.09048156388216,
+              21.140179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P109",
+        "owner_name": "Suresh Yadav",
+        "area": 544.4,
+        "land_area": 544.4,
+        "survey_no": "SY/P109/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072234582324,
+              21.140179662235
+            ],
+            [
+              79.09095228826118,
+              21.140179662235
+            ],
+            [
+              79.09095228826118,
+              21.140359468791452
+            ],
+            [
+              79.09072234582324,
+              21.140359468791452
+            ],
+            [
+              79.09072234582324,
+              21.140179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P110",
+        "owner_name": "Kavita Joshi",
+        "area": 477.9,
+        "land_area": 477.9,
+        "survey_no": "SY/P110/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096312776431,
+              21.140179662235
+            ],
+            [
+              79.0912056410809,
+              21.140179662235
+            ],
+            [
+              79.0912056410809,
+              21.140351790530598
+            ],
+            [
+              79.09096312776431,
+              21.140351790530598
+            ],
+            [
+              79.09096312776431,
+              21.140179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P111",
+        "owner_name": "Rajesh Tiwari",
+        "area": 482.5,
+        "land_area": 482.5,
+        "survey_no": "SY/P111/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.0912039097054,
+              21.140179662235
+            ],
+            [
+              79.09145647336697,
+              21.140179662235
+            ],
+            [
+              79.09145647336697,
+              21.14036466419498
+            ],
+            [
+              79.0912039097054,
+              21.14036466419498
+            ],
+            [
+              79.0912039097054,
+              21.140179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P112",
+        "owner_name": "Pooja Gupta",
+        "area": 540.1,
+        "land_area": 540.1,
+        "survey_no": "SY/P112/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09,
+              21.140359324469998
+            ],
+            [
+              79.09023448672787,
+              21.140359324469998
+            ],
+            [
+              79.09023448672787,
+              21.140528011476196
+            ],
+            [
+              79.09,
+              21.140528011476196
+            ],
+            [
+              79.09,
+              21.140359324469998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P113",
+        "owner_name": "Vikram Reddy",
+        "area": 457.2,
+        "land_area": 457.2,
+        "survey_no": "SY/P113/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024078194108,
+              21.140359324469998
+            ],
+            [
+              79.09049339603284,
+              21.140359324469998
+            ],
+            [
+              79.09049339603284,
+              21.140545177823935
+            ],
+            [
+              79.09024078194108,
+              21.140545177823935
+            ],
+            [
+              79.09024078194108,
+              21.140359324469998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P114",
+        "owner_name": "Nandini Rao",
+        "area": 542.6,
+        "land_area": 542.6,
+        "survey_no": "SY/P114/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048156388216,
+              21.140359324469998
+            ],
+            [
+              79.09072435069432,
+              21.140359324469998
+            ],
+            [
+              79.09072435069432,
+              21.140547863941727
+            ],
+            [
+              79.09048156388216,
+              21.140547863941727
+            ],
+            [
+              79.09048156388216,
+              21.140359324469998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P115",
+        "owner_name": "Arun Chaudhary",
+        "area": 529.1,
+        "land_area": 529.1,
+        "survey_no": "SY/P115/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072234582324,
+              21.140359324469998
+            ],
+            [
+              79.09097100891692,
+              21.140359324469998
+            ],
+            [
+              79.09097100891692,
+              21.14052674697405
+            ],
+            [
+              79.09072234582324,
+              21.14052674697405
+            ],
+            [
+              79.09072234582324,
+              21.140359324469998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P116",
+        "owner_name": "Sneha Kulkarni",
+        "area": 481.2,
+        "land_area": 481.2,
+        "survey_no": "SY/P116/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096312776431,
+              21.140359324469998
+            ],
+            [
+              79.09119361544474,
+              21.140359324469998
+            ],
+            [
+              79.09119361544474,
+              21.140528233958754
+            ],
+            [
+              79.09096312776431,
+              21.140528233958754
+            ],
+            [
+              79.09096312776431,
+              21.140359324469998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P117",
+        "owner_name": "Harish Pandey",
+        "area": 450.0,
+        "land_area": 450.0,
+        "survey_no": "SY/P117/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.0912039097054,
+              21.140359324469998
+            ],
+            [
+              79.09143969035388,
+              21.140359324469998
+            ],
+            [
+              79.09143969035388,
+              21.14053115811258
+            ],
+            [
+              79.0912039097054,
+              21.14053115811258
+            ],
+            [
+              79.0912039097054,
+              21.140359324469998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P118",
+        "owner_name": "Meera Desai",
+        "area": 468.3,
+        "land_area": 468.3,
+        "survey_no": "SY/P118/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09,
+              21.140538986704996
+            ],
+            [
+              79.09024498622514,
+              21.140538986704996
+            ],
+            [
+              79.09024498622514,
+              21.140709786345173
+            ],
+            [
+              79.09,
+              21.140709786345173
+            ],
+            [
+              79.09,
+              21.140538986704996
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P119",
+        "owner_name": "Sanjay Bose",
+        "area": 483.6,
+        "land_area": 483.6,
+        "survey_no": "SY/P119/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024078194108,
+              21.140538986704996
+            ],
+            [
+              79.09050042282337,
+              21.140538986704996
+            ],
+            [
+              79.09050042282337,
+              21.140722421840458
+            ],
+            [
+              79.09024078194108,
+              21.140722421840458
+            ],
+            [
+              79.09024078194108,
+              21.140538986704996
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P120",
+        "owner_name": "Geeta Iyer",
+        "area": 550.5,
+        "land_area": 550.5,
+        "survey_no": "SY/P120/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048156388216,
+              21.140538986704996
+            ],
+            [
+              79.09073297875035,
+              21.140538986704996
+            ],
+            [
+              79.09073297875035,
+              21.14071134696565
+            ],
+            [
+              79.09048156388216,
+              21.14071134696565
+            ],
+            [
+              79.09048156388216,
+              21.140538986704996
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P121",
+        "owner_name": "Prakash Nair",
+        "area": 500.9,
+        "land_area": 500.9,
+        "survey_no": "SY/P121/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072234582324,
+              21.140538986704996
+            ],
+            [
+              79.09095199334641,
+              21.140538986704996
+            ],
+            [
+              79.09095199334641,
+              21.14073058506237
+            ],
+            [
+              79.09072234582324,
+              21.14073058506237
+            ],
+            [
+              79.09072234582324,
+              21.140538986704996
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P122",
+        "owner_name": "Uma Krishnan",
+        "area": 508.6,
+        "land_area": 508.6,
+        "survey_no": "SY/P122/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096312776431,
+              21.140538986704996
+            ],
+            [
+              79.09119988891284,
+              21.140538986704996
+            ],
+            [
+              79.09119988891284,
+              21.14072982072197
+            ],
+            [
+              79.09096312776431,
+              21.14072982072197
+            ],
+            [
+              79.09096312776431,
+              21.140538986704996
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P123",
+        "owner_name": "Ritesh Saxena",
+        "area": 522.2,
+        "land_area": 522.2,
+        "survey_no": "SY/P123/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.0912039097054,
+              21.140538986704996
+            ],
+            [
+              79.09144705586063,
+              21.140538986704996
+            ],
+            [
+              79.09144705586063,
+              21.140712254984063
+            ],
+            [
+              79.0912039097054,
+              21.140712254984063
+            ],
+            [
+              79.0912039097054,
+              21.140538986704996
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P124",
+        "owner_name": "Deepa Aggarwal",
+        "area": 486.9,
+        "land_area": 486.9,
+        "survey_no": "SY/P124/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09,
+              21.140718648939995
+            ],
+            [
+              79.09022996874229,
+              21.140718648939995
+            ],
+            [
+              79.09022996874229,
+              21.140911719482748
+            ],
+            [
+              79.09,
+              21.140911719482748
+            ],
+            [
+              79.09,
+              21.140718648939995
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P125",
+        "owner_name": "Manoj Singh",
+        "area": 513.2,
+        "land_area": 513.2,
+        "survey_no": "SY/P125/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024078194108,
+              21.140718648939995
+            ],
+            [
+              79.09046652557174,
+              21.140718648939995
+            ],
+            [
+              79.09046652557174,
+              21.1409017457611
+            ],
+            [
+              79.09024078194108,
+              21.1409017457611
+            ],
+            [
+              79.09024078194108,
+              21.140718648939995
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P126",
+        "owner_name": "Kamala Devi",
+        "area": 477.7,
+        "land_area": 477.7,
+        "survey_no": "SY/P126/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048156388216,
+              21.140718648939995
+            ],
+            [
+              79.09071778519316,
+              21.140718648939995
+            ],
+            [
+              79.09071778519316,
+              21.140911681316393
+            ],
+            [
+              79.09048156388216,
+              21.140911681316393
+            ],
+            [
+              79.09048156388216,
+              21.140718648939995
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P127",
+        "owner_name": "Sunil Bajaj",
+        "area": 527.0,
+        "land_area": 527.0,
+        "survey_no": "SY/P127/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072234582324,
+              21.140718648939995
+            ],
+            [
+              79.09094430751666,
+              21.140718648939995
+            ],
+            [
+              79.09094430751666,
+              21.1409042594813
+            ],
+            [
+              79.09072234582324,
+              21.1409042594813
+            ],
+            [
+              79.09072234582324,
+              21.140718648939995
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P128",
+        "owner_name": "Renu Malhotra",
+        "area": 476.2,
+        "land_area": 476.2,
+        "survey_no": "SY/P128/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096312776431,
+              21.140718648939995
+            ],
+            [
+              79.09120934027426,
+              21.140718648939995
+            ],
+            [
+              79.09120934027426,
+              21.140887842764293
+            ],
+            [
+              79.09096312776431,
+              21.140887842764293
+            ],
+            [
+              79.09096312776431,
+              21.140718648939995
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P129",
+        "owner_name": "Ashok Bhatt",
+        "area": 481.5,
+        "land_area": 481.5,
+        "survey_no": "SY/P129/2024",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    }
+  ]
+}

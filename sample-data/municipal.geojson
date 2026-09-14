@@ -1,0 +1,1055 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "metadata": {
+    "dataset": "SIH26013 Synthetic Demo Dataset",
+    "description": "SYNTHETIC DATA ONLY. Generated for the SIH26013 prototype. Does not represent any real land records, government data, or actual geography.",
+    "study_area": "Synthetic Vastu Nagar ward (fictional urban block)",
+    "crs": "EPSG:4326 (WGS 84)",
+    "seed": 42,
+    "generator": "generate_demo_data.py"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09,
+              21.14
+            ],
+            [
+              79.09024078194108,
+              21.14
+            ],
+            [
+              79.09024078194108,
+              21.140179662235
+            ],
+            [
+              79.09,
+              21.140179662235
+            ],
+            [
+              79.09,
+              21.14
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-101",
+        "holder_name": "Ravi Kumar",
+        "plot_area": 500.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024367132437,
+              21.140002694933525
+            ],
+            [
+              79.09048445326545,
+              21.140002694933525
+            ],
+            [
+              79.09048445326545,
+              21.140182357168523
+            ],
+            [
+              79.09024367132437,
+              21.140182357168523
+            ],
+            [
+              79.09024367132437,
+              21.140002694933525
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-102",
+        "holder_name": "P. Sharma",
+        "plot_area": 500.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048349013769,
+              21.14000179662235
+            ],
+            [
+              79.09072427207876,
+              21.14000179662235
+            ],
+            [
+              79.09072427207876,
+              21.14018145885735
+            ],
+            [
+              79.09048349013769,
+              21.14018145885735
+            ],
+            [
+              79.09048349013769,
+              21.14000179662235
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-103",
+        "holder_name": "Amit Singh",
+        "plot_area": 500.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.090723308951,
+              21.140000898311175
+            ],
+            [
+              79.09098527970289,
+              21.140000898311175
+            ],
+            [
+              79.09098527970289,
+              21.140200323392023
+            ],
+            [
+              79.090723308951,
+              21.140200323392023
+            ],
+            [
+              79.090723308951,
+              21.140000898311175
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-104",
+        "holder_name": "Sunita Patel",
+        "plot_area": 603.8,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09101128415253,
+              21.140035932447
+            ],
+            [
+              79.0912520660936,
+              21.140035932447
+            ],
+            [
+              79.0912520660936,
+              21.140215594681997
+            ],
+            [
+              79.09101128415253,
+              21.140215594681997
+            ],
+            [
+              79.09101128415253,
+              21.140035932447
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-105",
+        "holder_name": "Mohan Das",
+        "plot_area": 500.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09005778766586,
+              21.14022457779375
+            ],
+            [
+              79.09026967577401,
+              21.14022457779375
+            ],
+            [
+              79.09026967577401,
+              21.140377290693497
+            ],
+            [
+              79.09005778766586,
+              21.140377290693497
+            ],
+            [
+              79.09005778766586,
+              21.14022457779375
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-106",
+        "holder_name": "D. Verma Sharma",
+        "plot_area": 374.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024210638295,
+              21.1401806647985
+            ],
+            [
+              79.09048825975685,
+              21.1401806647985
+            ],
+            [
+              79.09048825975685,
+              21.1403475263891
+            ],
+            [
+              79.09024210638295,
+              21.1403475263891
+            ],
+            [
+              79.09024210638295,
+              21.1401806647985
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-107",
+        "holder_name": "Anjali Mehta",
+        "plot_area": 474.7,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048198254818,
+              21.140181557320428
+            ],
+            [
+              79.09072957185656,
+              21.140181557320428
+            ],
+            [
+              79.09072957185656,
+              21.140371788534075
+            ],
+            [
+              79.09048198254818,
+              21.140371788534075
+            ],
+            [
+              79.09048198254818,
+              21.140181557320428
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-108",
+        "holder_name": "Suresh Yadav",
+        "plot_area": 544.4,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072247361088,
+              21.14018055532542
+            ],
+            [
+              79.09095241604882,
+              21.14018055532542
+            ],
+            [
+              79.09095241604882,
+              21.14036036188187
+            ],
+            [
+              79.09072247361088,
+              21.14036036188187
+            ],
+            [
+              79.09072247361088,
+              21.14018055532542
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-109",
+        "holder_name": "Kavita Joshi",
+        "plot_area": 477.9,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096596545503,
+              21.140183297837122
+            ],
+            [
+              79.09120847877162,
+              21.140183297837122
+            ],
+            [
+              79.09120847877162,
+              21.14035542613272
+            ],
+            [
+              79.09096596545503,
+              21.14035542613272
+            ],
+            [
+              79.09096596545503,
+              21.140183297837122
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-110",
+        "holder_name": "Rajesh Tiwari",
+        "plot_area": 482.5,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.091205548229,
+              21.14018036057986
+            ],
+            [
+              79.09145811189057,
+              21.14018036057986
+            ],
+            [
+              79.09145811189057,
+              21.14036536253984
+            ],
+            [
+              79.091205548229,
+              21.14036536253984
+            ],
+            [
+              79.091205548229,
+              21.14018036057986
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-111",
+        "holder_name": "Pooja Gupta",
+        "plot_area": 540.1,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09000046575115,
+              21.140363131038296
+            ],
+            [
+              79.09023495247901,
+              21.140363131038296
+            ],
+            [
+              79.09023495247901,
+              21.140531818044494
+            ],
+            [
+              79.09000046575115,
+              21.140531818044494
+            ],
+            [
+              79.09000046575115,
+              21.140363131038296
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-112",
+        "holder_name": "Vikram Reddy",
+        "plot_area": 457.2,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024336422189,
+              21.140363695273823
+            ],
+            [
+              79.09049597831365,
+              21.140363695273823
+            ],
+            [
+              79.09049597831365,
+              21.14054954862776
+            ],
+            [
+              79.09024336422189,
+              21.14054954862776
+            ],
+            [
+              79.09024336422189,
+              21.140363695273823
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-113",
+        "holder_name": "Nandini Rao",
+        "plot_area": 542.6,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048454244989,
+              21.140363194874688
+            ],
+            [
+              79.09072732926204,
+              21.140363194874688
+            ],
+            [
+              79.09072732926204,
+              21.140551734346417
+            ],
+            [
+              79.09048454244989,
+              21.140551734346417
+            ],
+            [
+              79.09048454244989,
+              21.140363194874688
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-114",
+        "holder_name": "Arun Chaudhary",
+        "plot_area": 529.1,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072344329903,
+              21.140360624272205
+            ],
+            [
+              79.09097210639271,
+              21.140360624272205
+            ],
+            [
+              79.09097210639271,
+              21.140528046776257
+            ],
+            [
+              79.09072344329903,
+              21.140528046776257
+            ],
+            [
+              79.09072344329903,
+              21.140360624272205
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-115",
+        "holder_name": "Sneha Kulkarni",
+        "plot_area": 481.2,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096446638479,
+              21.140362179682196
+            ],
+            [
+              79.09119495406522,
+              21.140362179682196
+            ],
+            [
+              79.09119495406522,
+              21.140531089170953
+            ],
+            [
+              79.09096446638479,
+              21.140531089170953
+            ],
+            [
+              79.09096446638479,
+              21.140362179682196
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-116",
+        "holder_name": "Harish Pandey",
+        "plot_area": 450.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09120519537416,
+              21.140363531506413
+            ],
+            [
+              79.09144097602264,
+              21.140363531506413
+            ],
+            [
+              79.09144097602264,
+              21.140535365148995
+            ],
+            [
+              79.09120519537416,
+              21.140535365148995
+            ],
+            [
+              79.09120519537416,
+              21.140363531506413
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-117",
+        "holder_name": "Meera Desai",
+        "plot_area": 468.3,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09000351121132,
+              21.140539720636426
+            ],
+            [
+              79.09024849743646,
+              21.140539720636426
+            ],
+            [
+              79.09024849743646,
+              21.140710520276603
+            ],
+            [
+              79.09000351121132,
+              21.140710520276603
+            ],
+            [
+              79.09000351121132,
+              21.140539720636426
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-118",
+        "holder_name": "Sanjay Bose",
+        "plot_area": 483.6,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024346400989,
+              21.140542061688155
+            ],
+            [
+              79.09050310489218,
+              21.140542061688155
+            ],
+            [
+              79.09050310489218,
+              21.140725496823617
+            ],
+            [
+              79.09024346400989,
+              21.140725496823617
+            ],
+            [
+              79.09024346400989,
+              21.140542061688155
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-119",
+        "holder_name": "Geeta Iyer",
+        "plot_area": 550.5,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048171846534,
+              21.140540403579987
+            ],
+            [
+              79.09073313333353,
+              21.140540403579987
+            ],
+            [
+              79.09073313333353,
+              21.14071276384064
+            ],
+            [
+              79.09048171846534,
+              21.14071276384064
+            ],
+            [
+              79.09048171846534,
+              21.140540403579987
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-120",
+        "holder_name": "Prakash Nair",
+        "plot_area": 500.9,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072656609321,
+              21.140540400098278
+            ],
+            [
+              79.09095621361638,
+              21.140540400098278
+            ],
+            [
+              79.09095621361638,
+              21.140731998455653
+            ],
+            [
+              79.09072656609321,
+              21.140731998455653
+            ],
+            [
+              79.09072656609321,
+              21.140540400098278
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-121",
+        "holder_name": "Uma Krishnan",
+        "plot_area": 508.6,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096533742911,
+              21.140540176429063
+            ],
+            [
+              79.09120209857764,
+              21.140540176429063
+            ],
+            [
+              79.09120209857764,
+              21.140731010446036
+            ],
+            [
+              79.09096533742911,
+              21.140731010446036
+            ],
+            [
+              79.09096533742911,
+              21.140540176429063
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-122",
+        "holder_name": "Ritesh Saxena",
+        "plot_area": 522.2,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09120672486038,
+              21.140543019326643
+            ],
+            [
+              79.09144987101561,
+              21.140543019326643
+            ],
+            [
+              79.09144987101561,
+              21.14071628760571
+            ],
+            [
+              79.09120672486038,
+              21.14071628760571
+            ],
+            [
+              79.09120672486038,
+              21.140543019326643
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-123",
+        "holder_name": "Deepa Aggarwal",
+        "plot_area": 486.9,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09000245369461,
+              21.140719057264697
+            ],
+            [
+              79.0902324224369,
+              21.140719057264697
+            ],
+            [
+              79.0902324224369,
+              21.14091212780745
+            ],
+            [
+              79.09000245369461,
+              21.14091212780745
+            ],
+            [
+              79.09000245369461,
+              21.140719057264697
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-124",
+        "holder_name": "Manoj Singh",
+        "plot_area": 513.2,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09024459630922,
+              21.14072054509507
+            ],
+            [
+              79.09047033993988,
+              21.14072054509507
+            ],
+            [
+              79.09047033993988,
+              21.140903641916175
+            ],
+            [
+              79.09024459630922,
+              21.140903641916175
+            ],
+            [
+              79.09024459630922,
+              21.14072054509507
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-125",
+        "holder_name": "Kamala Devi",
+        "plot_area": 477.7,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09048411190574,
+              21.140723010592787
+            ],
+            [
+              79.09072033321674,
+              21.140723010592787
+            ],
+            [
+              79.09072033321674,
+              21.140916042969184
+            ],
+            [
+              79.09048411190574,
+              21.140916042969184
+            ],
+            [
+              79.09048411190574,
+              21.140723010592787
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-126",
+        "holder_name": "Sunil Bajaj",
+        "plot_area": 527.0,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09072562869416,
+              21.140721060772236
+            ],
+            [
+              79.09094759038759,
+              21.140721060772236
+            ],
+            [
+              79.09094759038759,
+              21.14090667131354
+            ],
+            [
+              79.09072562869416,
+              21.14090667131354
+            ],
+            [
+              79.09072562869416,
+              21.140721060772236
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-127",
+        "holder_name": "Renu Malhotra",
+        "plot_area": 476.2,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.09096522143673,
+              21.14072068686537
+            ],
+            [
+              79.09121143394668,
+              21.14072068686537
+            ],
+            [
+              79.09121143394668,
+              21.14088988068967
+            ],
+            [
+              79.09096522143673,
+              21.14088988068967
+            ],
+            [
+              79.09096522143673,
+              21.14072068686537
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "property_id": "M-128",
+        "holder_name": "Ashok Bhatt",
+        "plot_area": 481.5,
+        "ward": "Vastu Nagar",
+        "note": "SYNTHETIC DATA -- demo only"
+      }
+    }
+  ]
+}
