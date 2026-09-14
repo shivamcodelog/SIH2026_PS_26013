@@ -4,8 +4,24 @@
 -- ==============================================================================
 
 -- 1. Enable Required Spatial & Utility Extensions
-CREATE EXTENSION IF NOT EXISTS postgis;
+DO $$
+BEGIN
+    BEGIN
+        CREATE EXTENSION IF NOT EXISTS postgis;
+    EXCEPTION WHEN OTHERS THEN
+        NULL;
+    END;
+END $$;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+-- Fallback geometry domain if PostGIS extension is not installed
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'geometry') THEN
+        CREATE DOMAIN geometry AS text;
+    END IF;
+END $$;
 
 -- 2. Drop existing tables if rebuilding (clean reproducibility)
 DROP TABLE IF EXISTS reviews CASCADE;
@@ -55,7 +71,7 @@ CREATE TABLE records (
     parcel_id TEXT,
     owner_name TEXT,
     area DOUBLE PRECISION,
-    geometry GEOMETRY(Geometry, 4326) NOT NULL,
+    geometry GEOMETRY NOT NULL,
     normalized_attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -68,7 +84,7 @@ CREATE TABLE matches (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     source_record_a UUID NOT NULL REFERENCES records(id) ON DELETE CASCADE,
-    source_record_b UUID NOT NULL REFERENCES records(id) ON DELETE CASCADE,
+    source_record_b UUID REFERENCES records(id) ON DELETE CASCADE,
     spatial_score DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     area_score DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     attribute_score DOUBLE PRECISION NOT NULL DEFAULT 0.0,
@@ -76,7 +92,7 @@ CREATE TABLE matches (
     status TEXT NOT NULL CHECK (status IN ('AUTO_VERIFIED', 'REQUIRES_REVIEW', 'HUMAN_VERIFIED', 'REJECTED')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_different_records CHECK (source_record_a <> source_record_b)
+    CONSTRAINT chk_different_records CHECK (source_record_b IS NULL OR source_record_a <> source_record_b)
 );
 
 -- ------------------------------------------------------------------------------
@@ -86,7 +102,11 @@ CREATE TABLE matches (
 CREATE TABLE conflicts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     match_id UUID NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
-    type TEXT NOT NULL CHECK (type IN ('OWNER_MISMATCH', 'AREA_DISCREPANCY', 'BOUNDARY_SHIFT', 'MISSING_RECORD')),
+    type TEXT NOT NULL CHECK (type IN (
+        'OWNER_MISMATCH', 'AREA_MISMATCH', 'AREA_DISCREPANCY',
+        'BOUNDARY_MISMATCH', 'BOUNDARY_SHIFT', 'MISSING_RECORD',
+        'MISSING_MUNICIPAL_RECORD', 'MISSING_CADASTRAL_RECORD'
+    )),
     severity TEXT NOT NULL CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH')),
     description TEXT NOT NULL,
     resolved BOOLEAN NOT NULL DEFAULT false,
