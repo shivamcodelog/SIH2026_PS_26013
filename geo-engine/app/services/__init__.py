@@ -10,6 +10,14 @@ from app.services.matching import (
     generate_candidate_pairs,
     match_datasets,
 )
+from app.services.conflicts import (
+    detect_owner_conflict,
+    detect_area_conflict,
+    detect_boundary_conflict,
+    detect_missing_record_conflict,
+    evaluate_match_conflicts,
+    detect_dataset_conflicts,
+)
 
 __all__ = [
     "detect_schema_mapping",
@@ -28,4 +36,10 @@ __all__ = [
     "compute_confidence",
     "generate_candidate_pairs",
     "match_datasets",
+    "detect_owner_conflict",
+    "detect_area_conflict",
+    "detect_boundary_conflict",
+    "detect_missing_record_conflict",
+    "evaluate_match_conflicts",
+    "detect_dataset_conflicts",
 ]
