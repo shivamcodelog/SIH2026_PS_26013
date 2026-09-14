@@ -1,2309 +1,314 @@
-SIH26013 — AI Agent Mission Playbook
+# SIH26013 — AI Agent Mission Playbook (v3)
 
-How to use this file
+## How this works
 
-This document is the execution plan for building the SIH26013 prototype with an AI coding agent.
+Three files, three jobs — none of them duplicate each other:
 
-The agent must treat the previously defined Master Build Specification as the architectural source of truth and this document as the execution order.
+| File | Job |
+|---|---|
+| `docs/PROJECT_CONTEXT.md` | The full spec — data model, formulas, JSON contracts, UI mockups, demo script. **The source of truth for "what to build."** |
+| `.agent/rules/sih26013-rules.md` | Hard architectural constraints that apply to every mission, always. |
+| `mission-playbook.md` (this file) | **The source of truth for "in what order, and exactly what to check off."** Each mission cites the `PROJECT_CONTEXT.md` sections it needs and inlines the specific fields/formulas/endpoints required to implement it — you should not need to re-read the whole context file every mission, but you must read the cited sections before implementing.
 
-The user should be able to say:
+**Invocation:** the user says `Execute Mission N`. Before doing anything else:
+1. Read `.agent/rules/sih26013-rules.md` in full (it's short — always load it).
+2. Read the `Read:` sections cited by this mission from `PROJECT_CONTEXT.md`.
+3. Load only the `Skills:` listed for this mission.
+4. Then follow the per-mission protocol below.
 
-Execute Mission 1.
+Do not execute later missions unless a prerequisite is genuinely missing and required to make this mission testable — and say so explicitly before doing it.
 
-or:
+## Per-mission protocol
 
-Execute Mission 5.
+1. **State** the mission being executed.
+2. **Inspect** current repo state relevant to this mission (files, configs, schema, routes, README, git status — don't assume anything doesn't exist).
+3. **Plan** the exact sub-items in scope.
+4. **Implement.**
+5. **Test** — actually run it (build/start/curl/click), don't just eyeball the code.
+6. **Fix** anything the implementation broke.
+7. **Report:**
 
-The agent must then execute only that mission and its sub-missions, unless a prerequisite is genuinely missing and must be completed to make the mission testable.
-
-0. PROJECT CONTEXT
-
-Problem
-
-SIH26013 is about:
-
-Automated Integration and Intelligent Harmonization of Multi-source Geospatial Data for Urban Land Record Management.
-
-We are building a working Round-1 prototype, not a production government GIS system.
-
-The prototype takes multiple heterogeneous geospatial datasets representing the same location, harmonizes them, matches records, detects conflicts, calculates confidence, routes low-confidence cases to human review, and displays the unified result through both tables and an interactive GIS map.
-
-Core pipeline
-
-User / Official
-      ↓
-React Web App
-      ↓
-Node / Express REST API
-      ↓
-FastAPI Geospatial Engine
-      ↓
-GeoPandas + Shapely + PyProj
-      ↓
-PostgreSQL + PostGIS
-      ↓
-Unified Geospatial Results
-      ↓
-┌───────────────┬────────────────┐
-│ Result Tables │ Interactive Map│
-└───────────────┴────────────────┘
-      ↓
-Human Review for Low Confidence
-
-Primary prototype datasets
-
-Only three datasets are required initially:
-
-Cadastral / parcel dataset
-
-Municipal property dataset
-
-Drone-derived building footprint dataset
-
-Use synthetic demo data.
-
-Never present synthetic data as real government data.
-
-1. GLOBAL AGENT RULES
-
-These rules apply to every mission.
-
-1.1 Source of truth
-
-The agent must follow:
-
-This mission document
-
-The project's existing code/configuration
-
-The Master Build Specification
-
-Explicit instructions from the user in the current mission
-
-Do not invent requirements.
-
-1.2 Inspect before changing
-
-Before modifying the project:
-
-inspect repository structure
-
-inspect existing files
-
-inspect package manifests
-
-inspect environment configuration
-
-inspect database configuration
-
-inspect existing API routes
-
-inspect existing types/interfaces
-
-inspect existing README
-
-inspect git status if available
-
-Never assume a file does not exist.
-
-1.3 Do not rewrite working code
-
-Prefer incremental changes.
-
-Do not replace an entire application just because it is easier.
-
-Do not delete working functionality without a reason.
-
-1.4 No unnecessary dependencies
-
-Before installing a package:
-
-determine whether an existing dependency can solve the problem
-
-explain why a new package is needed
-
-use the smallest reasonable dependency
-
-Do not introduce:
-
-Kafka
-
-Kubernetes
-
-Celery
-
-RabbitMQ
-
-Redis
-
-GraphQL
-
-Elasticsearch
-
-vector databases
-
-complex microservices
-
-unless the user explicitly requests them later.
-
-1.5 Architecture is locked
-
-The intended architecture is:
-
-React + TypeScript + Tailwind + Leaflet
-                 ↓
-          Node + Express
-                 ↓
-             FastAPI
-                 ↓
-      GeoPandas / Shapely / PyProj
-                 ↓
-        PostgreSQL + PostGIS
-
-Responsibilities:
-
-React
-
-UI, map, forms, tables, review interface.
-
-Node/Express
-
-Application API, project management, dataset metadata, orchestration.
-
-FastAPI
-
-Geospatial processing.
-
-Python libraries
-
-Actual geospatial operations.
-
-PostgreSQL/PostGIS
-
-Persistent relational and spatial storage.
-
-Leaflet
-
-Interactive map visualization only.
-
-1.6 No fake functionality
-
-Do not create UI buttons that pretend to work.
-
-If a feature is not implemented, either:
-
-do not show it, or
-
-clearly mark it as future scope.
-
-1.7 No fabricated geospatial facts
-
-Never invent:
-
-CRS values
-
-coordinates
-
-areas
-
-spatial relationships
-
-government APIs
-
-government datasets
-
-legal ownership claims
-
-Synthetic data may be generated for demonstration, but it must be explicitly identified as synthetic.
-
-1.8 No LLM dependency for core processing
-
-The core pipeline must work without an external LLM API.
-
-Optional AI can later assist with:
-
-schema mapping
-
-conflict explanation
-
-But spatial calculations, matching signals, confidence and geometry validation must be deterministic/reproducible.
-
-1.9 Keep original source data
-
-Never destructively overwrite source records.
-
-Maintain:
-
-Original source data
-        +
-Normalized data
-        +
-Unified data
-
-1.10 Explain major decisions
-
-If a major architectural change is required, stop and explain the issue before making the change.
-
-Do not silently redesign the system.
-
-2. MISSION STATUS PROTOCOL
-
-At the beginning of every mission:
-
-State the mission being executed.
-
-Inspect the current repository.
-
-Identify what is already complete.
-
-Identify missing prerequisites.
-
-Execute the mission.
-
-Test the work.
-
-Fix failures caused by the mission.
-
-Provide a concise completion report.
-
-At the end:
-
+```
 MISSION STATUS
 ---------------
+Mission: <N — name>
+Skills used: <list>
+Context sections read: <e.g. §5, §6>
+
 Completed:
 - ...
-
-Tests:
+Tests run:
 - ...
-
 Files changed:
 - ...
-
 Known issues:
 - ...
-
 Ready for:
-- Mission X
+- Mission <N+1>
+```
 
-Do not claim success if the feature has not actually been tested.
+---
 
-3. MISSION 1 — PROJECT FOUNDATION
+## MISSION 1 — Project Setup
 
-Objective
+**Skills:** `backend-architect`, `backend-node-express`, `fastapi`, `frontend-react-js`, `docker-expert`, `database-design`
+**Read:** PROJECT_CONTEXT §5 (stack responsibilities), §6 (data model — for foresight only, don't build tables yet)
 
-Create the complete development foundation for the SIH26013 application without implementing business logic.
-
-Architecture
-
-Create:
-
+**Build:**
+```
 SIH26013/
-├── frontend/
-├── node-server/
-├── geo-engine/
-├── database/
+├── frontend/        React + JS + Tailwind, minimal shell only
+├── node-server/      GET /api/health → {"success": true, "service": "node-server"}
+├── geo-engine/       GET /health → identifies FastAPI service
+├── database/          PostGIS config, not full schema yet
 ├── sample-data/
 ├── docs/
-├── .gitignore
-├── .env.example
-├── docker-compose.yml
-└── README.md
+├── .gitignore, .env.example, docker-compose.yml, README.md
+```
+Verify each service actually starts. `.env.example` includes placeholders for: database URL, Node port, FastAPI port, frontend API URL, future API keys.
 
-Sub-mission 1.1 — Inspect environment
+**Definition of done:** all four services start; both health endpoints return 200; folder structure + `.env.example` + README exist.
 
-Determine:
+---
 
-operating system
+## MISSION 2 — Database & PostGIS
 
-installed Node version
+**Skills:** `database-design`, `design-postgres-tables`, `design-postgis-tables`, `postgresql`
+**Read:** PROJECT_CONTEXT §6 (full table field list)
 
-installed npm/pnpm/yarn
+**Build:** `CREATE EXTENSION IF NOT EXISTS postgis;` verified with a real spatial query, not just a syntax check. Create the six tables exactly as specified in §6 (`projects`, `datasets`, `records`, `matches`, `conflicts`, `reviews`) with a GiST spatial index on the geometry column and indexes on foreign keys, `confidence`, and `status`. Write migrations/seed SQL — the schema must be reproducible from code, not hand-created.
 
-Python version
+**Definition of done:** schema rebuilds from a clean database via migrations; a real `ST_Intersects` or `ST_Area` query returns a correct result against test rows.
 
-PostgreSQL availability
+---
 
-Docker availability
+## MISSION 3 — Synthetic Demo Data
 
-Git availability
+**Skills:** `python-development`
+**Read:** PROJECT_CONTEXT §23 (all seven test cases, determinism requirement)
 
-Do not install unrelated tools.
+**Build:** one small synthetic study area, clearly documented as synthetic. Three GeoJSON files — `cadastral.geojson`, `municipal.geojson`, `buildings.geojson` — 20–50 parcels, with cases A–G from §23 deliberately present and locatable by ID. Fixed seed if any randomness is used.
 
-Sub-mission 1.2 — Initialize frontend
+**Definition of done:** all seven cases exist in the data and are individually identifiable (know which parcel ID is which case, for demo rehearsal and for Mission 5's tests).
 
-Create React + TypeScript application.
+---
 
-Requirements:
+## MISSION 4 — FastAPI Ingestion Engine
 
-TypeScript
+**Skills:** `fastapi`, `python-development`
+**Read:** PROJECT_CONTEXT §7 (schema mapping), §8 (CRS), §9 (geometry validation)
 
-modern React
-
-Tailwind CSS
-
-basic routing if needed
-
-clean component structure
-
-Do not build application pages yet beyond a minimal shell.
-
-Create:
-
-frontend/src/
-├── components/
-├── pages/
-├── api/
-├── hooks/
-├── types/
-├── map/
-├── lib/
-└── App.tsx
-
-Sub-mission 1.3 — Initialize Node backend
-
-Create Node + Express TypeScript application if practical.
-
-Provide:
-
-GET /api/health
-
-Response:
-
-{
-  "success": true,
-  "service": "node-server"
-}
-
-Use environment configuration.
-
-Sub-mission 1.4 — Initialize FastAPI
-
-Create:
-
-geo-engine/app/main.py
-
-Provide:
-
-GET /health
-
-Response identifying the FastAPI service.
-
-Create initial structure:
-
-geo-engine/
-├── app/
-│   ├── main.py
-│   ├── routes/
-│   ├── services/
-│   ├── models/
-│   └── utils/
-└── requirements.txt
-
-Sub-mission 1.5 — Database foundation
-
-Prepare PostgreSQL + PostGIS configuration.
-
-Do not create the complete production schema yet.
-
-Verify that PostGIS can be enabled.
-
-Sub-mission 1.6 — Environment configuration
-
-Create:
-
-.env.example
-
-Include placeholders for:
-
-database URL
-
-Node port
-
-FastAPI port
-
-frontend API URL
-
-optional future API keys
-
-Never commit secrets.
-
-Sub-mission 1.7 — Docker
-
-If Docker is available, create a simple development setup.
-
-Services may include:
-
-PostgreSQL/PostGIS
-
-Node backend
-
-FastAPI
-
-frontend if practical
-
-Do not make Docker mandatory if local development is simpler.
-
-Sub-mission 1.8 — Documentation
-
-Create README containing:
-
-project purpose
-
-architecture
-
-local setup
-
-services
-
-ports
-
-commands
-
-development status
-
-Acceptance criteria
-
-Mission 1 is complete when:
-
-Frontend starts
-Node starts
-FastAPI starts
-Database starts/connects
-Health endpoints work
-Repository structure exists
-Environment configuration exists
-README exists
-
-4. MISSION 2 — DATABASE AND POSTGIS FOUNDATION
-
-Objective
-
-Create the minimal persistent data model.
-
-Sub-mission 2.1 — Enable PostGIS
-
-Verify:
-
-CREATE EXTENSION IF NOT EXISTS postgis;
-
-Verify spatial functions work.
-
-Sub-mission 2.2 — Projects table
-
-Create:
-
-projects
-
-Fields:
-
-id
-name
-description
-created_at
-updated_at
-
-Sub-mission 2.3 — Datasets table
-
-Create:
-
-datasets
-
-Fields:
-
-id
-project_id
-name
-source_type
-file_name
-file_format
-crs
-record_count
-status
-uploaded_at
-
-Sub-mission 2.4 — Source records
-
-Create a normalized record table containing:
-
-id
-dataset_id
-source_record_id
-parcel_id
-owner_name
-area
-geometry
-normalized_attributes
-created_at
-
-Geometry should use an appropriate PostGIS geometry type.
-
-Sub-mission 2.5 — Matches
-
-Create:
-
-matches
-
-Include:
-
-id
-project_id
-record_a_id
-record_b_id
-spatial_score
-area_score
-attribute_score
-confidence
-status
-created_at
-
-Sub-mission 2.6 — Conflicts
-
-Create:
-
-conflicts
-
-Include:
-
-id
-match_id
-type
-severity
-description
-resolved
-created_at
-
-Sub-mission 2.7 — Reviews
-
-Create:
-
-reviews
-
-Include:
-
-id
-match_id
-reviewer
-decision
-comment
-created_at
-
-Sub-mission 2.8 — Indexes
-
-Add sensible indexes.
-
-At minimum:
-
-project foreign keys
-
-dataset foreign keys
-
-spatial index on geometry
-
-confidence/status indexes where useful
-
-Sub-mission 2.9 — Migration/seed strategy
-
-Create migrations or SQL scripts that can reproduce the schema.
-
-Do not manually create a database that cannot be reproduced.
-
-Acceptance criteria
-
-The database can be recreated from code and supports:
-
-Project
- ↓
-Dataset
- ↓
-Records
- ↓
-Matches
- ↓
-Conflicts
- ↓
-Reviews
-
-PostGIS spatial queries work.
-
-5. MISSION 3 — SYNTHETIC DEMO DATA
-
-Objective
-
-Create realistic, deterministic GeoJSON datasets designed specifically to demonstrate harmonization.
-
-Sub-mission 3.1 — Define common study area
-
-Choose one small synthetic urban study area.
-
-The geographic location does not need to represent real government records.
-
-Document that it is synthetic.
-
-Sub-mission 3.2 — Cadastral dataset
-
-Create approximately 20–50 parcels.
-
-Fields:
-
-parcel_id
-owner_name
-area
-geometry
-
-Sub-mission 3.3 — Municipal dataset
-
-Represent mostly the same parcels but deliberately introduce:
-
-different IDs
-
-name abbreviations
-
-minor geometry differences
-
-area discrepancies
-
-missing records
-
-at least one owner conflict
-
-Fields:
-
-property_id
-holder_name
-plot_area
-geometry
-
-Sub-mission 3.4 — Drone building dataset
-
-Create building footprints.
-
-Fields:
-
-building_id
-building_area
-geometry
-
-Place buildings inside or near parcels.
-
-Sub-mission 3.5 — Required test cases
-
-Ensure data contains:
-
-Case A
-
-High-confidence match.
-
-Case B
-
-Name variation:
-
-Ravi Kumar
-Ravi K.
-
-Case C
-
-Owner conflict.
-
-Case D
-
-Area mismatch.
-
-Case E
-
-Boundary mismatch.
-
-Case F
-
-Missing municipal record.
-
-Case G
-
-Low-confidence candidate below 90%.
-
-Sub-mission 3.6 — Determinism
-
-The data must produce predictable results.
-
-Do not use random generation unless a fixed seed is used.
-
-Acceptance criteria
-
-Running the future matching pipeline against the datasets should reliably demonstrate:
-
-successful matches
-
-conflicts
-
-low-confidence records
-
-building-to-parcel relationships
-
-6. MISSION 4 — FASTAPI INGESTION ENGINE
-
-Objective
-
-Build the first actual geospatial processing pipeline.
-
-Input:
-
-GeoJSON dataset.
-
-Output:
-
-Validated normalized geospatial data.
-
-Sub-mission 4.1 — File ingestion
-
-Create an endpoint/service capable of reading GeoJSON.
-
-Validate:
-
-file exists
-
-valid JSON
-
-valid GeoJSON
-
-geometry exists
-
-supported geometry types
-
-Sub-mission 4.2 — Dataset metadata extraction
-
-Extract:
-
-feature count
-
-geometry types
-
-CRS if available
-
-property names
-
-bounding box where useful
-
-Sub-mission 4.3 — Schema detection
-
-Identify likely fields for:
-
-ID
-owner
-area
-geometry
-
-Support known aliases.
-
-Example:
-
-owner_name
-holder_name
-landholder
-
-→ canonical owner_name
-
-And:
-
-area
-plot_area
-parcel_area
-land_area
-
-→ canonical area
-
-Sub-mission 4.4 — Schema normalization
-
-Produce an internal canonical representation:
-
-source_record_id
-canonical_id
-owner_name
-area
-geometry
-source_dataset
-
-Do not destroy original attributes.
-
-Sub-mission 4.5 — CRS handling
-
-Detect CRS where available.
-
-Normalize to a common project CRS.
-
-For prototype analysis, use a projected CRS suitable for metric distance/area calculations.
-
-Do not blindly assume missing CRS.
-
-If CRS cannot be determined safely:
-
-status = CRS_REVIEW_REQUIRED
-
-Sub-mission 4.6 — Geometry validation
-
-Check:
-
-null
-
-empty
-
-invalid
-
-unsupported geometry
-
-Attempt safe repair where appropriate.
-
-Track repair status.
-
-Sub-mission 4.7 — Unit handling
-
-Normalize area units if source metadata provides them.
-
-Do not silently guess unknown units.
-
-Sub-mission 4.8 — Processing response
-
-Return structured metadata:
-
+**Build:**
+- Ingestion: validate file exists, valid JSON, valid GeoJSON, geometry present, supported geometry type.
+- Schema detection using the alias mapping in §7 (`holder_name`/`landholder` → `owner_name`; `plot_area`/`parcel_area`/`land_area` → `area`).
+- CRS: detect, normalize to one common **projected** CRS; unresolvable CRS → `CRS_REVIEW_REQUIRED`, never guessed.
+- Geometry validation + safe repair, tracking repair status per record.
+- Response contract:
+```json
 {
   "success": true,
   "records_processed": 42,
   "crs": "...",
   "geometry_types": ["Polygon"],
   "schema_mapping": {},
-  "validation": {
-    "valid": 40,
-    "repaired": 1,
-    "invalid": 1
-  }
+  "validation": { "valid": 40, "repaired": 1, "invalid": 1 }
 }
+```
 
-Acceptance criteria
+**Definition of done:** all three Mission 3 datasets go upload → read → normalize → validate → structured response, verified end to end.
 
-A valid GeoJSON dataset can be:
+---
 
-uploaded
-→ read
-→ inspected
-→ normalized
-→ validated
-→ returned as structured output
+## MISSION 5 — Spatial & Attribute Matching Engine
 
-7. MISSION 5 — SPATIAL AND ATTRIBUTE MATCHING ENGINE
+**Skills:** `python-development`, `fastapi`, `testing-qa`
+**Read:** PROJECT_CONTEXT §10 (formula + worked example, threshold)
 
-Objective
+**Build:** candidate generation via bounding box/spatial index before scoring (don't brute-force compare every pair). Compute `spatial_score` (IoU or a documented equivalent), `area_score` (`1 - abs(a-b)/max(a,b)`, clamped, missing handled explicitly), `attribute_score` (fuzzy name matching). Combine via the §10 formula with configurable weights (default 50/20/30). Threshold 0.90 (config value) → `AUTO_VERIFIED` / `REQUIRES_REVIEW`. Return the explanation payload (`spatial_score`, `area_score`, `attribute_score`, `confidence`) — never just the final number. Unit tests covering: exact match, name abbreviation, area mismatch, spatial mismatch, low-confidence case, missing attributes.
 
-Determine which records from different datasets likely represent the same real-world entity.
+**Definition of done:** running the matcher against Mission 3's data reproduces the expected outcome for every one of the seven cases, every run.
 
-Sub-mission 5.1 — Candidate generation
+---
 
-Do not compare every record against every other record if spatial filtering can reduce candidates.
+## MISSION 6 — Conflict Detection Engine
 
-Use:
+**Skills:** `python-development`, `fastapi`
+**Read:** PROJECT_CONTEXT §12 (conflict types + object shape)
 
-bounding boxes
+**Build:** owner conflict (name-format variance vs. genuinely different name), area conflict (absolute + percentage, configurable tolerance), boundary conflict (geometry overlap/difference), missing-record detection (either direction). Severity: LOW/MEDIUM/HIGH with documented thresholds. Output shape: `{"type": "...", "severity": "...", "description": "..."}`.
 
-spatial index
+**Definition of done:** conflicts generate correctly and reliably against the Mission 3 test cases.
 
-proximity
+---
 
-intersection/overlap
+## MISSION 7 — Unified Record Generation
 
-Sub-mission 5.2 — Spatial similarity
+**Skills:** `python-development`, `database-design`
+**Read:** PROJECT_CONTEXT §13 (unified record JSON, both clean and problematic examples)
 
-Compute an explainable spatial similarity.
+**Build:** produce the unified record shape from §13 for every match. Track `sources` (flat array is acceptable for MVP; per-field provenance is a stretch goal). Document the geometry-selection rule used (e.g. prefer drone footprint above a confidence threshold, else cadastral) — never pick arbitrarily or silently. Status values: `AUTO_VERIFIED`, `REQUIRES_REVIEW`, `HUMAN_VERIFIED`, `REJECTED`.
 
-A reasonable approach for polygons:
+**Definition of done:** every match produces a unified record traceable back to its exact source records.
 
-intersection_area / union_area
+---
 
-or another clearly documented overlap metric.
+## MISSION 8 — Node/Express Application API
 
-Document the chosen metric.
+**Skills:** `backend-node-express`, `api-design`, `security-audit`
+**Read:** PROJECT_CONTEXT §5 (traffic direction: React→Node→FastAPI only)
 
-Sub-mission 5.3 — Area similarity
-
-Compare normalized areas.
-
-Example conceptual formula:
-
-1 - abs(area_a - area_b) / max(area_a, area_b)
-
-Clamp to valid range.
-
-Handle missing area safely.
-
-Sub-mission 5.4 — Attribute similarity
-
-Use normalized string comparison/fuzzy matching.
-
-Handle:
-
-Ravi Kumar
-Ravi K.
-RAVI KUMAR
-
-reasonably.
-
-Do not assume every similar name is the same person.
-
-Sub-mission 5.5 — Confidence calculation
-
-Initial prototype weighting:
-
-50% spatial
-20% area
-30% attribute
-
-Make weights configurable.
-
-Handle missing signals explicitly rather than generating misleading scores.
-
-Sub-mission 5.6 — Threshold
-
-Default:
-
-0.90
-
-If confidence >= threshold:
-
-AUTO_VERIFIED
-
-If confidence < threshold:
-
-REQUIRES_REVIEW
-
-Sub-mission 5.7 — Match explanation
-
-Return component scores:
-
-{
-  "spatial_score": 0.96,
-  "area_score": 0.90,
-  "attribute_score": 0.93,
-  "confidence": 0.939
-}
-
-Sub-mission 5.8 — Deterministic testing
-
-Create unit tests for:
-
-exact match
-
-name abbreviation
-
-area mismatch
-
-spatial mismatch
-
-low-confidence case
-
-missing attributes
-
-Acceptance criteria
-
-Given the synthetic datasets, the engine produces stable matches and understandable confidence scores.
-
-8. MISSION 6 — CONFLICT DETECTION ENGINE
-
-Objective
-
-Detect inconsistencies between matched records.
-
-Sub-mission 6.1 — Owner conflict
-
-Compare normalized owner names.
-
-Distinguish:
-
-Ravi Kumar
-Ravi K.
-
-from:
-
-Ravi Kumar
-Amit Singh
-
-Sub-mission 6.2 — Area conflict
-
-Calculate:
-
-absolute difference
-
-percentage difference
-
-Use configurable tolerance.
-
-Sub-mission 6.3 — Boundary conflict
-
-Compare geometry overlap/difference.
-
-Generate a structured conflict.
-
-Sub-mission 6.4 — Missing records
-
-Detect:
-
-exists in source A
-missing in source B
-
-Sub-mission 6.5 — Conflict severity
-
-Use simple categories:
-
-LOW
-MEDIUM
-HIGH
-
-Document rules.
-
-Sub-mission 6.6 — Conflict object
-
-Example:
-
-{
-  "type": "AREA_MISMATCH",
-  "severity": "MEDIUM",
-  "description": "Reported area differs by 7.4%"
-}
-
-Acceptance criteria
-
-The engine reliably generates conflicts from the synthetic test data.
-
-9. MISSION 7 — UNIFIED RECORD GENERATION
-
-Objective
-
-Combine matched source records into a unified representation while preserving provenance.
-
-Sub-mission 7.1 — Unified record
-
-Include:
-
-unified_id
-parcel_id
-owner_name
-area
-building_id
-geometry
-confidence
-status
-sources
-conflicts
-
-Sub-mission 7.2 — Provenance
-
-Track where each important field came from.
-
-Example:
-
-{
-  "owner_name": {
-    "value": "Ravi Kumar",
-    "sources": ["cadastral", "municipal"]
-  }
-}
-
-A simpler source list is acceptable for the MVP.
-
-Sub-mission 7.3 — Geometry
-
-Use a documented rule for choosing/constructing unified geometry.
-
-Do not arbitrarily overwrite geometry.
-
-For prototype, a sensible harmonized geometry may be derived from the most trusted source or a documented combination.
-
-Sub-mission 7.4 — Status
-
-Possible statuses:
-
-AUTO_VERIFIED
-REQUIRES_REVIEW
-HUMAN_VERIFIED
-REJECTED
-
-Acceptance criteria
-
-Every successful match can produce a unified record that is traceable back to source records.
-
-10. MISSION 8 — NODE/EXPRESS APPLICATION API
-
-Objective
-
-Build the application-level REST API.
-
-Node communicates with FastAPI.
-
-Frontend communicates with Node.
-
-Sub-mission 8.1 — Health
-
-Implement:
-
-GET /api/health
-
-Sub-mission 8.2 — Projects
-
-Implement minimal:
-
-POST /api/projects
-GET /api/projects
-GET /api/projects/:id
-
-Sub-mission 8.3 — Dataset upload
-
-Implement:
-
-POST /api/projects/:id/datasets
-
-Responsibilities:
-
-validate request
-
-store metadata
-
-forward processing input to FastAPI as needed
-
-return dataset information
-
-Sub-mission 8.4 — Processing
-
-Implement:
-
+**Build:**
+```
+GET  /api/health
+POST /api/projects            GET /api/projects            GET /api/projects/:id
+POST /api/projects/:id/datasets            GET /api/projects/:id/datasets
 POST /api/projects/:id/process
+GET  /api/projects/:id/results             GET /api/projects/:id/conflicts            GET /api/projects/:id/map
+POST /api/reviews/:id/decision   (body: ACCEPT | REJECT | RESOLVE, optional comment)
+```
+Only implement endpoints the UI actually needs. Define one shared JS response contract used by both frontend and backend — don't let either side invent its own shape (example contract in PROJECT_CONTEXT §16's dashboard numbers is representative of the summary shape expected).
 
-Node should orchestrate the processing service.
+**Definition of done:** full path verified with real requests — HTTP → Node → FastAPI → database → Node response.
 
-Sub-mission 8.5 — Results
+---
 
-Implement:
+## MISSION 9 — Frontend Application Shell
 
-GET /api/projects/:id/results
-GET /api/projects/:id/conflicts
-GET /api/projects/:id/map
+**Skills:** `frontend-react-js`
+**Read:** PROJECT_CONTEXT §17 (upload/processing/results screens), §18 (nav shape)
 
-Sub-mission 8.6 — Reviews
+**Build:** six pages — Dashboard, Datasets, Processing, Unified Map, Records, Review — with the navigation shape from §18. Dashboard pulls real metrics (§16) once the API exists. Datasets page shows name/source/CRS/record count/status. Upload UI has one control per dataset type with real status/error/success states (§17).
 
-Implement:
+**Definition of done:** a user can navigate all six pages and upload all three datasets without touching the backend directly.
 
-POST /api/reviews/:id/decision
+---
 
-Accept:
+## MISSION 10 — Leaflet GIS Map
 
-ACCEPT
-REJECT
-RESOLVE
+**Skills:** `leaflet`, `frontend-react-js`
+**Read:** PROJECT_CONTEXT §14 (layers, click-interaction mockups for both clean and problem records)
 
-plus optional comment.
+**Build:** base map with tile provider config separated from app logic. Toggleable layers: Unified / Cadastral / Municipal / Buildings. Click a parcel → detail panel matching the two mockups in §14 exactly (fields: Parcel ID, Owner, Area, Building, Confidence, Status, Sources, Conflicts). Problem parcels visually distinct by more than color alone. Zoom/pan/fit-bounds/focus-on-selection all functional.
 
-Sub-mission 8.7 — API contracts
+**Note (rules.md):** GeoJSON is `[lng, lat]`, Leaflet is `[lat, lng]` — reorder explicitly wherever geometry crosses this boundary.
 
-Define TypeScript types for responses.
+**Definition of done:** map renders real processed data (not placeholder geometry); clicking both a clean and a problem parcel shows the correct mockup.
 
-Do not allow frontend and backend to invent separate schemas.
+---
 
-Acceptance criteria
+## MISSION 11 — Results Table & Map Sync
 
-The full backend path works:
+**Skills:** `frontend-react-js`
+**Read:** PROJECT_CONTEXT §15 (columns, search, filters, sync requirement)
 
-React-ready HTTP request
-→ Node
-→ FastAPI
-→ database/results
-→ Node response
+**Build:** table with the exact columns from §15. Search by parcel/property/owner/building ID. Filters: All / Verified / Requires Review / Conflicts / Missing Data, plus confidence-range filter. Row click focuses the map feature; map feature click updates table selection where practical.
 
-11. MISSION 9 — FRONTEND APPLICATION SHELL
+**Definition of done:** a user can fully inspect the unified dataset via the table alone, and table/map stay in sync.
 
-Objective
+---
 
-Build the basic professional UI before complex integration.
+## MISSION 12 — Human-in-the-Loop Review
 
-Pages
+**Skills:** `frontend-react-js`, `backend-node-express`, `api-design`
+**Read:** PROJECT_CONTEXT §11 (full comparison mockup + actions + status transition)
 
-Create:
+**Build:** review queue showing only `REQUIRES_REVIEW` records. Side-by-side source comparison matching §11's mockup exactly, including the three component scores. Actions Accept/Reject/Resolve persist reviewer, decision, comment, timestamp, and transition status (`REQUIRES_REVIEW → HUMAN_VERIFIED` or `→ REJECTED`). Map and table both reflect the new status after a decision without a full reload if avoidable.
 
-Dashboard
-Datasets
-Processing
-Unified Map
-Records
-Review
+**Definition of done:** a judge can see why a record is uncertain, decide, and immediately see that decision reflected everywhere in the app.
 
-Sub-mission 9.1 — Navigation
+---
 
-Create clear navigation.
+## MISSION 13 — End-to-End Integration
 
-Sub-mission 9.2 — Dashboard
+**Skills:** `e2e-testing-patterns`, `testing-qa`, `backend-architect`
+**Read:** PROJECT_CONTEXT §3 (full pipeline diagram), §25 (definition of done checklist)
 
-Display project metrics.
+**Build:** the complete flow in §3, with all UI-only mocks replaced by real API results. Handle: Node unavailable, FastAPI unavailable, DB error, invalid file, processing error — each with a real, specific error message (not a blank screen). Real loading states, real empty states ("No datasets uploaded", "No conflicts found", "No records require review"). After any review decision, table/dashboard/map/queue all stay consistent.
 
-Initially use API data when available.
+**Definition of done:** every item in PROJECT_CONTEXT §25 is achievable through the browser alone, with no manual DB edits or backend calls.
 
-Sub-mission 9.3 — Dataset page
+---
 
-Show:
+## MISSION 14 — UI Polish
 
-dataset name
+**Skills:** `frontend-react-js`, `ponytail`
+**Read:** PROJECT_CONTEXT §18 (nav/design tone)
 
-source type
+**Build:** polish, in order: dashboard → upload → processing visualization → map + side panel → records table → review screen → responsive behavior at laptop/tablet widths. Professional, clean, information-dense but readable, restrained, map-centric. Avoid excessive animation, gradients, unnecessary 3D, gaming-style UI, over-rounded cards, and decoration with no informational purpose.
 
-file name
+Use `ponytail` for a simplification pass once each screen already works — trimming, not adding.
 
-CRS
+---
 
-record count
+## MISSION 15 — Export & Provenance (should-have, only if time permits)
 
-status
+**Skills:** `backend-node-express`, `python-development`
+**Read:** PROJECT_CONTEXT §13 (provenance note)
 
-Sub-mission 9.4 — Upload UI
+**Build:** "Download Unified GeoJSON" export; optional CSV export of the results table; show source provenance in the UI where already tracked. Do not let this consume time Missions 1–13 still need.
 
-Allow uploading the three demo datasets.
+---
 
-Show:
+## MISSION 16 — Optional AI Assistance (only after all must-haves work)
 
-selected file
+**Skills:** `rules`
+**Read:** PROJECT_CONTEXT §19 (both use cases + hard rule)
 
-upload status
+**Build:** schema-mapping suggestions and plain-language conflict explanations exactly as scoped in §19 — both are human-reviewable suggestions layered on top of already-computed deterministic values, never a replacement for them.
 
-errors
+**Hard rule:** the LLM never computes or modifies geometry, coordinates, area, spatial similarity, or confidence.
 
-success
+---
 
-Sub-mission 9.5 — Processing UI
+## MISSION 17 — Demo Hardening
 
-Show:
+**Skills:** `testing-qa`, `e2e-testing-patterns`, `security-audit`
+**Read:** PROJECT_CONTEXT §23 (determinism), rules.md (security section)
 
-Ingestion
-Schema normalization
-CRS normalization
-Geometry validation
-Matching
-Conflict detection
-Confidence scoring
+**Build:** confirm all four services start reliably from a clean checkout; a predictable DB reset/seed mechanism; demo datasets reloadable repeatedly without breaking state; same input twice → same output; deliberately test bad GeoJSON, empty file, missing geometry, missing CRS, invalid geometry, backend-unavailable; walk the full browser flow manually once; confirm processing time is reasonable for prototype-sized data (do not chase performance beyond that).
 
-Use real state where possible.
+---
 
-Acceptance criteria
+## MISSION 18 — Final Presentation Mode
 
-A user can navigate the application and upload datasets without interacting with the backend manually.
+**Skills:** `ponytail`, `get-shit-done`
+**Read:** PROJECT_CONTEXT §22 (full timed demo script), §21 (closing line)
 
-12. MISSION 10 — LEAFLET GIS MAP
+**Build:** rehearse the exact script in §22 against the actual running app. Use `get-shit-done` to ruthlessly cut anything not required for those 2 minutes to run flawlessly. Use `ponytail` for a final simplification pass on anything visible along that specific path.
 
-Objective
+---
 
-Make the geospatial nature of the project visually obvious.
+## MISSION 19 — Final Audit
 
-Sub-mission 10.1 — Base map
+**Skills:** `security-audit`, `testing-qa`, `rules`, `ponytail`
+**Read:** rules.md in full, PROJECT_CONTEXT §5 (architecture), §20 (what we don't claim)
 
-Integrate Leaflet into React.
+**Build:** confirm, one by one: architecture chain intact (no swaps); original/normalized/unified data all present and traceable; synthetic data labeled everywhere; CRS/geometry/matching/conflict logic verified against real runs, not assumed; human review queue/comparison/decision/persistence/state-update all verified; frontend has no dead buttons; errors/loading/empty states all real; no secrets committed, uploads validated, filenames sanitized, env vars used throughout.
 
-Use a suitable tile provider.
+---
 
-Keep provider configuration separate from application logic.
+## MISSION 20 — README & Technical Documentation
 
-Sub-mission 10.2 — Unified parcel layer
+**Skills:** `get-shit-done`
+**Read:** PROJECT_CONTEXT §1–§4, §20, §24 (problem, philosophy, non-claims, future scope)
 
-Render unified parcel GeoJSON.
+**Build:** README covering project title, SIH problem ID, problem + solution explanation, architecture, tech stack, folder structure, setup instructions, env variables, running instructions, dataset format, matching algorithm, confidence calculation, human-in-the-loop workflow, screenshots if available, demo flow, limitations, future scope, and the explicit line: *"This is a prototype using synthetic demonstration datasets."*
 
-Sub-mission 10.3 — Building layer
+---
 
-Render drone building footprints.
+## Hard "do not" list (applies to every mission — also see rules.md)
 
-Sub-mission 10.4 — Source layers
+Never: rebuild the whole stack because it's easier; add Kafka/Kubernetes/Celery/RabbitMQ/Redis/GraphQL/Elasticsearch/a vector database without explicit user request; swap PostgreSQL/PostGIS, FastAPI, or Node/Express; remove Leaflet; build production auth; connect to a real or imagined government API; fabricate government data; let an LLM compute spatial values; hide uncertainty or auto-accept every match; overwrite source data; work on §24 future-scope before the Mission 1–13 core is fully working; fake a loading indicator.
 
-Support:
+## Emergency priority order (if time runs out mid-build)
 
-Unified
-Cadastral
-Municipal
-Buildings
+1. End-to-end working flow (Missions 1–8, 13)
+2. Geospatial processing (4, 5, 6, 7)
+3. Human review (12)
+4. Interactive map (10)
+5. Results table (11)
+6. UI polish (14)
+7. Optional AI (16)
+8. Future-scope (24) — last, and only if everything above is solid
 
-where data is available.
-
-Sub-mission 10.5 — Layer control
-
-Allow users to toggle layers.
-
-Sub-mission 10.6 — Click interaction
-
-Click parcel → show details.
-
-Display:
-
-Parcel ID
-Owner
-Area
-Building
-Confidence
-Status
-Sources
-Conflicts
-
-Sub-mission 10.7 — Confidence visualization
-
-Visually distinguish:
-
-high confidence
-requires review
-conflict
-
-Do not rely only on color.
-
-Sub-mission 10.8 — Map navigation
-
-Support:
-
-zoom
-
-pan
-
-fit bounds
-
-selected parcel focus
-
-Acceptance criteria
-
-The browser shows a real interactive GIS map containing the processed prototype data.
-
-13. MISSION 11 — RESULTS TABLE
-
-Objective
-
-Create the structured unified-data interface.
-
-Sub-mission 11.1 — Table
-
-Columns:
-
-Parcel ID
-Owner
-Area
-Building
-Sources
-Confidence
-Status
-Conflicts
-Action
-
-Sub-mission 11.2 — Search
-
-Search by:
-
-parcel ID
-
-property ID
-
-owner
-
-building ID
-
-Sub-mission 11.3 — Filters
-
-Filters:
-
-All
-Verified
-Requires Review
-Conflicts
-Missing Data
-
-Sub-mission 11.4 — Confidence filter
-
-Allow:
-
-<90%
-90–95%
->95%
-
-Sub-mission 11.5 — Table/map synchronization
-
-Click table row:
-
-→ map focuses feature.
-
-Click map feature:
-
-→ table selection updates if practical.
-
-Acceptance criteria
-
-A user can inspect the unified result set without opening the database.
-
-14. MISSION 12 — HUMAN-IN-THE-LOOP REVIEW
-
-Objective
-
-Implement the central human verification workflow.
-
-Sub-mission 12.1 — Review queue
-
-Show only records requiring review.
-
-Sub-mission 12.2 — Record comparison
-
-Show source records side-by-side.
-
-Example:
-
-CADASTRAL
-Owner: Amit Singh
-Area: 310 m²
-
-MUNICIPAL
-Owner: Amit Kumar
-Area: 334 m²
-
-Sub-mission 12.3 — Similarity breakdown
-
-Show:
-
-Spatial Similarity
-Area Similarity
-Attribute Similarity
-Overall Confidence
-
-Sub-mission 12.4 — Conflict list
-
-Show detected conflicts.
-
-Sub-mission 12.5 — Review actions
-
-Implement:
-
-Accept Match
-Reject Match
-Resolve
-
-Sub-mission 12.6 — Persist decision
-
-Save:
-
-reviewer
-
-decision
-
-comment
-
-timestamp
-
-Sub-mission 12.7 — Update status
-
-After acceptance:
-
-REQUIRES_REVIEW
-       ↓
-HUMAN_VERIFIED
-
-After rejection:
-
-REJECTED
-
-Sub-mission 12.8 — Map integration
-
-Reviewed record should update its map/table status.
-
-Acceptance criteria
-
-A judge can see a low-confidence record, understand why it is uncertain, make a decision, and see the updated state.
-
-15. MISSION 13 — COMPLETE END-TO-END INTEGRATION
-
-Objective
-
-Connect every component into one uninterrupted user journey.
-
-Required flow
-
-Create project
-      ↓
-Upload cadastral
-      ↓
-Upload municipal
-      ↓
-Upload drone
-      ↓
-Process
-      ↓
-FastAPI processing
-      ↓
-PostGIS persistence
-      ↓
-Unified results
-      ↓
-Dashboard summary
-      ↓
-Map
-      ↓
-Records
-      ↓
-Conflict
-      ↓
-Human review
-      ↓
-Updated result
-
-Sub-mission 13.1 — Remove mock data
-
-Replace UI-only mocks with actual API results wherever the underlying feature is implemented.
-
-Sub-mission 13.2 — API error handling
-
-Handle:
-
-Node unavailable
-
-FastAPI unavailable
-
-database error
-
-invalid file
-
-processing error
-
-Sub-mission 13.3 — Loading states
-
-Show useful loading indicators.
-
-Sub-mission 13.4 — Empty states
-
-Examples:
-
-No datasets uploaded.
-No conflicts found.
-No records require review.
-
-Sub-mission 13.5 — State consistency
-
-After human review:
-
-table updates
-
-dashboard counts update
-
-map status updates
-
-review queue updates
-
-Acceptance criteria
-
-The entire demo can be completed entirely through the browser.
-
-16. MISSION 14 — UI POLISH
-
-Objective
-
-Make the prototype look like a serious government/enterprise GIS application.
-
-Design principles
-
-professional
-
-clean
-
-information-dense but readable
-
-consistent
-
-restrained
-
-map-centric
-
-Avoid:
-
-excessive animations
-
-flashy gradients
-
-unnecessary 3D effects
-
-gaming UI
-
-excessive rounded cards
-
-meaningless decorative elements
-
-Sub-mission 14.1
-
-Polish dashboard.
-
-Sub-mission 14.2
-
-Polish upload workflow.
-
-Sub-mission 14.3
-
-Polish processing visualization.
-
-Sub-mission 14.4
-
-Polish map + side panel.
-
-Sub-mission 14.5
-
-Polish records table.
-
-Sub-mission 14.6
-
-Polish human review screen.
-
-Sub-mission 14.7
-
-Responsive behavior for reasonable laptop/tablet widths.
-
-17. MISSION 15 — EXPORT AND PROVENANCE
-
-Objective
-
-Add high-value features if time permits.
-
-Sub-mission 15.1 — Export unified GeoJSON
-
-Allow:
-
-Download Unified GeoJSON
-
-Sub-mission 15.2 — Export table
-
-Optional CSV export.
-
-Sub-mission 15.3 — Provenance
-
-Show source information for unified fields.
-
-Sub-mission 15.4 — Processing summary
-
-Allow user to inspect what happened during harmonization.
-
-Do not implement complex reporting unless time remains.
-
-18. MISSION 16 — OPTIONAL AI ASSISTANCE
-
-Only execute this mission after all MUST-HAVE functionality works.
-
-Objective
-
-Add AI only where it genuinely improves the prototype.
-
-Sub-mission 16.1 — AI schema mapping
-
-Given unknown columns:
-
-holder_nm
-plot_sz
-pid
-
-AI can suggest:
-
-owner_name
-area
-parcel_id
-
-The suggestion must be reviewable.
-
-Sub-mission 16.2 — AI conflict explanation
-
-Use actual computed values.
-
-Example:
-
-Spatial similarity: 91%
-Area similarity: 86%
-Attribute similarity: 73%
-Confidence: 82%
-
-AI explains the conflict.
-
-Hard rule
-
-The LLM must not generate or modify:
-
-coordinates
-
-geometry
-
-area calculations
-
-spatial similarity
-
-confidence values
-
-Those must come from the geospatial engine.
-
-19. MISSION 17 — DEMO HARDENING
-
-Objective
-
-Make the prototype reliable enough for presentation.
-
-Sub-mission 17.1 — Clean startup
-
-Confirm:
-
-Database
-Node
-FastAPI
-Frontend
-
-start reliably.
-
-Sub-mission 17.2 — Clean database
-
-Create a predictable reset/seed mechanism.
-
-Sub-mission 17.3 — Demo dataset reset
-
-Ensure sample datasets can be loaded repeatedly.
-
-Sub-mission 17.4 — Deterministic results
-
-Run the same input multiple times and verify stable results.
-
-Sub-mission 17.5 — Error testing
-
-Test:
-
-bad GeoJSON
-
-empty file
-
-missing geometry
-
-missing CRS
-
-invalid geometry
-
-backend unavailable
-
-Sub-mission 17.6 — Browser test
-
-Complete the entire flow manually.
-
-Sub-mission 17.7 — Performance sanity
-
-Do not optimize prematurely.
-
-Confirm prototype datasets process in a reasonable amount of time.
-
-20. MISSION 18 — FINAL PRESENTATION MODE
-
-Objective
-
-Prepare the application specifically for the SIH Round-1 demonstration.
-
-Demo flow
-
-Step 1
-
-Open dashboard.
-
-Step 2
-
-Show problem:
-
-Multiple datasets
-Different schemas
-Different boundaries
-Different attributes
-
-Step 3
-
-Upload:
-
-Cadastral
-Municipal
-Drone
-
-Step 4
-
-Process.
-
-Show:
-
-Schema normalization
-CRS normalization
-Geometry validation
-Spatial matching
-Conflict detection
-Confidence scoring
-
-Step 5
-
-Show dashboard metrics.
-
-Step 6
-
-Open unified map.
-
-Step 7
-
-Toggle source layers.
-
-Step 8
-
-Click a high-confidence parcel.
-
-Show:
-
-Unified owner
-Area
-Building
-Sources
-Confidence
-Status
-
-Step 9
-
-Click low-confidence parcel.
-
-Show:
-
-82%
-Owner mismatch
-Area mismatch
-Boundary issue
-
-Step 10
-
-Open human review.
-
-Step 11
-
-Accept/reject/resolve.
-
-Step 12
-
-Return to map and show updated status.
-
-21. MISSION 19 — FINAL AUDIT
-
-Objective
-
-Perform a complete technical and product audit.
-
-Audit categories
-
-Architecture
-
-Verify:
-
-React
- ↓
-Node
- ↓
-FastAPI
- ↓
-PostGIS
-
-Data
-
-Verify:
-
-original data preserved
-
-normalized data exists
-
-unified records traceable
-
-synthetic data clearly labeled
-
-Geospatial
-
-Verify:
-
-CRS handling
-
-geometry validation
-
-spatial matching
-
-area calculation
-
-geometry conflict detection
-
-Matching
-
-Verify:
-
-attribute similarity
-
-spatial similarity
-
-confidence
-
-threshold
-
-Human review
-
-Verify:
-
-queue
-
-comparison
-
-decision
-
-persistence
-
-updated state
-
-Frontend
-
-Verify:
-
-upload
-
-processing
-
-dashboard
-
-table
-
-map
-
-review
-
-Reliability
-
-Verify:
-
-errors handled
-
-loading states
-
-empty states
-
-no broken buttons
-
-Security
-
-Verify:
-
-no secrets committed
-
-uploads validated
-
-filenames handled safely
-
-environment variables used
-
-22. MISSION 20 — README AND TECHNICAL DOCUMENTATION
-
-Objective
-
-Create final documentation.
-
-README must contain:
-
-Project title
-
-SIH problem ID
-
-Problem explanation
-
-Solution explanation
-
-Architecture
-
-Tech stack
-
-Folder structure
-
-Setup instructions
-
-Environment variables
-
-Running instructions
-
-Dataset format
-
-Matching algorithm
-
-Confidence calculation
-
-Human-in-the-loop workflow
-
-Screenshots if available
-
-Demo flow
-
-Limitations
-
-Future scope
-
-Clearly state:
-
-This is a prototype using synthetic demonstration datasets.
-
-23. OPTIONAL FUTURE-SCOPE FEATURES
-
-Do NOT prioritize these before the core prototype.
-
-Geospatial repository
-
-GitHub-like:
-
-Project
- ├── Dataset
- │    ├── Version 1
- │    ├── Version 2
- │    └── Version 3
-
-Possible features:
-
-public/private datasets
-
-organization access
-
-version history
-
-audit trail
-
-rollback
-
-publishing
-
-Advanced map editing
-
-Officials could:
-
-draw parcels
-
-edit boundaries
-
-add buildings
-
-split parcels
-
-merge parcels
-
-Additional data sources
-
-Future:
-
-revenue
-
-utilities
-
-GNSS/CORS
-
-ORI
-
-DSM/DTM
-
-satellite imagery
-
-Advanced GeoAI
-
-Future:
-
-computer vision
-
-change detection
-
-automated topology correction
-
-imagery-to-vector extraction
-
-These are not required for the Round-1 prototype.
-
-24. DO NOT DO THESE THINGS
-
-Unless explicitly requested by the user:
-
-Do not rebuild the entire stack.
-
-Do not add random dependencies.
-
-Do not replace PostgreSQL/PostGIS with another database.
-
-Do not replace FastAPI with another Python framework.
-
-Do not replace Node/Express with another application backend.
-
-Do not remove Leaflet.
-
-Do not implement a vector database.
-
-Do not add Redis.
-
-Do not add Kafka.
-
-Do not add Kubernetes.
-
-Do not build a production authentication system.
-
-Do not connect to imaginary government APIs.
-
-Do not fabricate real government data.
-
-Do not make the LLM responsible for spatial calculations.
-
-Do not hide uncertainty.
-
-Do not make every match automatically accepted.
-
-Do not overwrite source data.
-
-Do not spend time on future-scope features before the MVP works.
-
-Do not optimize prematurely.
-
-Do not create fake loading/progress indicators that misrepresent backend processing.
-
-25. MVP DEFINITION
-
-The MVP is complete when all of the following work:
-
-[✓] React application
-[✓] Node/Express API
-[✓] FastAPI service
-[✓] PostgreSQL/PostGIS
-[✓] GeoJSON ingestion
-[✓] Schema normalization
-[✓] CRS normalization
-[✓] Geometry validation
-[✓] Spatial matching
-[✓] Attribute matching
-[✓] Confidence scoring
-[✓] Conflict detection
-[✓] Unified records
-[✓] Human review
-[✓] Leaflet map
-[✓] Source layers
-[✓] Parcel click
-[✓] Result table
-[✓] Search/filter
-[✓] Dashboard
-[✓] Synthetic demo datasets
-[✓] End-to-end browser workflow
-
-Everything else is secondary.
-
-26. FINAL PRODUCT DEFINITION
-
-The finished prototype should allow an official to do this:
-
-OPEN WEBSITE
-     ↓
-CREATE PROJECT
-     ↓
-UPLOAD MULTIPLE LAND DATASETS
-     ↓
-SYSTEM AUTOMATICALLY:
-     ├── Reads datasets
-     ├── Maps schemas
-     ├── Normalizes CRS
-     ├── Validates geometry
-     ├── Finds spatial matches
-     ├── Compares attributes
-     ├── Compares area
-     ├── Detects conflicts
-     └── Calculates confidence
-     ↓
-HIGH CONFIDENCE
-     ↓
-AUTO VERIFIED
-
-LOW CONFIDENCE
-     ↓
-HUMAN REVIEW
-     ↓
-ACCEPT / REJECT / RESOLVE
-     ↓
-UNIFIED LAND RECORD
-     ↓
-TABLE + INTERACTIVE WEBGIS MAP
-
-The central product idea is:
-
-Fragmented geospatial data → automated harmonization → explainable matching → conflict detection → human verification → unified land information.
-
-27. AGENT RESPONSE FORMAT
-
-When the user says:
-
-Execute Mission X
-
-the agent should:
-
-A. Inspect
-
-Check current project state.
-
-B. Plan
-
-Identify the exact sub-missions that apply.
-
-C. Implement
-
-Make the required changes.
-
-D. Test
-
-Run appropriate tests/builds/type checks/service checks.
-
-E. Fix
-
-Fix errors caused by the implementation.
-
-F. Report
-
-Return:
-
-Mission X completed.
-
-Implemented:
-- ...
-
-Files changed:
-- ...
-
-Tests:
-- ...
-
-Result:
-- ...
-
-Known issues:
-- ...
-
-Next recommended mission:
-Mission Y
-
-Do not provide unnecessary theory when the user has explicitly asked to execute a mission.
-
-28. EMERGENCY RULE
-
-If the user is under severe time pressure, prioritize in this order:
-
-1. End-to-end working flow
-2. Geospatial processing
-3. Matching/confidence
-4. Human review
-5. Interactive map
-6. Results table
-7. UI polish
-8. Optional AI
-9. Future features
-
-If a mission becomes too large, split it internally while preserving the architecture.
-
-Never sacrifice the working end-to-end demo merely to implement optional features.
-
-29. FINAL COMMAND
-
-The user should now be able to simply say:
-
-Execute Mission 1
-
-Then:
-
-Execute Mission 2
-
-Then:
-
-Execute Mission 3
-
-and continue sequentially.
-
-The AI agent must use this document to maintain project continuity and must not repeatedly redesign the architecture.
+Stop wherever time runs out. Do not skip ahead to a later, flashier item at the cost of an earlier one still being broken.

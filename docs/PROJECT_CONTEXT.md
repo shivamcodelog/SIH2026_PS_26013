@@ -216,9 +216,9 @@ Used for:
 * review interface
 * map page
 
-### TypeScript
+### JavaScript
 
-Use TypeScript throughout the frontend.
+Use JavaScript throughout the frontend.
 
 ### Tailwind CSS
 
@@ -420,7 +420,7 @@ Docker/Docker Compose is optional and useful for reproducibility.
                                 v
                     +----------------------+
                     |      REACT APP       |
-                    | TypeScript + Tailwind|
+                    | JavaScript + Tailwind|
                     |      + Leaflet       |
                     +----------+-----------+
                                |
@@ -1558,7 +1558,7 @@ SIH26013/
 │   │   ├── api/
 │   │   ├── hooks/
 │   │   ├── types/
-│   │   └── App.tsx
+│   │   └── App.jsx
 │   │
 │   └── package.json
 │
@@ -2209,7 +2209,7 @@ sample-data
 
 Set up:
 
-* React + TypeScript
+* React + JavaScript
 * Node + Express
 * Python + FastAPI
 * PostgreSQL + PostGIS
@@ -2619,7 +2619,7 @@ AI coding agents must:
 5. Keep Node and FastAPI responsibilities separate.
 6. Keep geospatial logic inside the Python service.
 7. Keep UI logic inside React.
-8. Use TypeScript types for API responses.
+8. Use JavaScript types for API responses.
 9. Handle errors explicitly.
 10. Avoid fake data in production logic.
 11. Use synthetic data only where clearly marked as demo data.
@@ -2858,3 +2858,280 @@ INTERACTIVE WEBGIS MAP
 Everything in the prototype should support this story.
 
 If a proposed feature does not strengthen this pipeline, it should be considered lower priority.
+
+
+
+## more brief context
+
+# SIH26013 — Project Context
+
+This is the canonical spec. Mission files reference sections of this document instead of duplicating them — if this file changes, missions stay correct automatically. Read the referenced section(s) before implementing any mission that cites them.
+
+---
+
+## §1. Problem
+
+**Problem ID:** SIH26013 — Automated Integration and Intelligent Harmonization of Multi-source Geospatial Data for Urban Land Record Management.
+
+Urban land information is distributed across cadastral/parcel maps, municipal property records, drone survey data, building footprints, revenue land records, utility databases, GNSS/CORS survey information, ORI imagery, and DSM/DTM datasets. These describe the same real-world parcels/buildings but differ in file format, CRS, schema, field names, identifiers, geometry, boundaries, area, ownership attributes, update dates, quality, and completeness. Today this is reconciled manually by GIS experts — slow and error-prone. We're building an automated system that does much of this work.
+
+## §2. What we're building
+
+A web-based intelligent geospatial data harmonization platform. A user/official uploads multiple datasets representing the same geographic area; the system normalizes, matches, flags conflicts, scores confidence, routes uncertain cases to a human, and shows the unified result as a table + interactive map.
+
+**Three representative prototype datasets:**
+
+| Dataset | Fields |
+|---|---|
+| Cadastral/parcel | `parcel_id`, `owner_name`, `area`, `geometry` |
+| Municipal property | `property_id`, `holder_name`, `plot_area`, `geometry` |
+| Drone building footprint | `building_id`, `building_area`, `geometry` |
+
+**Pipeline the engine performs:** file ingestion → schema detection → schema normalization → CRS detection/normalization → geometry validation → geometry repair where possible → attribute similarity matching → spatial matching → area comparison → conflict detection → confidence calculation → human review for uncertain records → unified record generation → interactive map visualization.
+
+## §3. User journey
+
+```
+USER/OFFICIAL → WEB APP → UPLOAD DATASETS → INGESTION → SCHEMA NORMALIZATION
+→ CRS NORMALIZATION → GEOMETRY VALIDATION → SPATIAL+ATTRIBUTE MATCHING
+→ CONFLICT DETECTION → CONFIDENCE SCORING
+        ├── >= 90% → AUTO ACCEPT ──────┐
+        └── < 90%  → HUMAN REVIEW ─────┤
+                                        ↓
+                                UNIFIED RECORD
+                                  ├── DATA TABLE
+                                  └── INTERACTIVE MAP
+```
+
+## §4. Prototype philosophy
+
+This is not a full implementation of every source type in the SIH brief — that's a multi-year system. We build the core harmonization pipeline on cadastral + municipal + drone data, with an architecture that *could* extend to revenue, utility, GNSS/CORS, ORI, and DSM/DTM. Say this explicitly to judges; never imply every government source is wired up.
+
+## §5. Tech stack responsibilities
+
+- **React + JavaScript + Tailwind**: UI, dashboard, upload, tables, review interface, map page.
+- **Leaflet**: map tiles, parcel/building polygons, markers, click/popup, layer toggling, zoom/pan, highlighting. Leaflet does **not** do geospatial computation.
+- **Node + Express** (application backend): REST API, project management, dataset upload handling, metadata, request validation, talks to FastAPI, serves application-level APIs. Does **not** do complex geospatial processing.
+- **FastAPI** (geospatial engine): reading geospatial files, schema handling, CRS transformation, geometry validation/repair, spatial matching, attribute matching, area comparison, conflict detection, confidence scoring, unified result generation.
+- **GeoPandas**: reading GeoJSON/shapefiles, geospatial dataframe ops, CRS, spatial joins.
+- **Shapely**: geometry validation, intersection, containment, distance, area, overlap, repair.
+- **PyProj**: CRS handling, coordinate transformation. Area/distance math should use an appropriate **projected** CRS, not raw lat/lng.
+- **PostgreSQL + PostGIS**: stores projects, datasets, metadata, normalized records, geometries, matches, conflicts, confidence scores, review decisions. Use `ST_Intersects`, `ST_Contains`, `ST_Within`, `ST_Distance`, `ST_Area`, `ST_Intersection`, `ST_Transform` for spatial queries — don't duplicate this logic in Python where PostGIS already does it well.
+
+**Traffic direction is fixed:** `React → Node → FastAPI`, never `React → FastAPI` directly, unless there's a specific documented reason.
+
+## §6. Data model
+
+| Table | Fields |
+|---|---|
+| `projects` | id, name, description, created_at |
+| `datasets` | id, project_id, name, source_type, file_name, file_format, crs, uploaded_at, status |
+| `records` | id, dataset_id, source_record_id, parcel_id, owner_name, area, geometry, normalized_attributes |
+| `matches` | id, project_id, source_record_a, source_record_b, spatial_score, area_score, attribute_score, confidence, status |
+| `conflicts` | id, match_id, type, severity, description, resolved |
+| `reviews` | id, match_id, reviewer, decision, comment, created_at |
+
+Preserve original source data alongside normalized and unified representations — never destroy source values. This traceability matters for government data specifically.
+
+## §7. Schema normalization
+
+Map source-specific field names to canonical fields via known mapping rules + string similarity/fuzzy matching (an LLM may optionally assist, but the system must not depend on one for basic function):
+
+```
+owner_name → owner_name
+holder_name → owner_name
+landholder → owner_name
+
+area / plot_area / parcel_area / land_area → area
+```
+
+Canonical schema target: `owner_name`, `area`, `parcel_id`, `geometry`.
+
+## §8. CRS normalization
+
+Detect source CRS, transform to one common CRS for the project. Store the normalized CRS in dataset metadata. **Never** silently assume a CRS — if it's genuinely undeterminable, flag the record (`CRS_REVIEW_REQUIRED`) rather than guessing.
+
+## §9. Geometry validation
+
+Check missing/invalid/empty/malformed/duplicate geometry and geometry-type consistency. Attempt safe repair; if repair fails, flag for review rather than silently dropping the record.
+
+## §10. Spatial + attribute matching, and confidence formula
+
+IDs alone can't be trusted across sources (a parcel might be `P101` in cadastral, `M-782` in municipal, `B21` in drone data) — matching relies on spatial overlap, distance, area similarity, and attribute similarity.
+
+```
+Overall Confidence = 0.50 × Spatial Similarity + 0.20 × Area Similarity + 0.30 × Attribute Similarity
+```
+
+Worked example:
+```
+Spatial similarity = 0.96
+Area similarity    = 0.90
+Attribute similarity = 0.93
+Confidence = 0.50(0.96) + 0.20(0.90) + 0.30(0.93) = 0.939 = 93.9%
+```
+
+Weights must be configurable, not hardcoded inline. The UI must show the component scores, not just the final number — this is a demo-critical explainability requirement (see §52 equivalent below).
+
+**Threshold:** `confidence >= 0.90` → `AUTO_VERIFIED` (e.g. 96% auto-matched). `< 0.90` → `REQUIRES_REVIEW` (e.g. 82% needs a human). Threshold is a config value.
+
+## §11. Human-in-the-loop
+
+The system must never pretend automation is perfect. Below-threshold matches route to a human with a side-by-side comparison:
+
+```
+Cadastral: Owner "Amit Singh", Area 310 m²
+Municipal: Owner "Amit Kumar", Area 334 m²
+
+Spatial overlap: 91%   Area similarity: 86%   Name similarity: 73%
+Overall confidence: 82%
+
+[ Accept Match ]  [ Reject Match ]  [ Edit / Resolve ]
+```
+
+On accept: `status = HUMAN_VERIFIED`. Source records are never destructively overwritten.
+
+## §12. Conflict types
+
+- **Owner conflict** — "Ravi Kumar" vs "Ravi K." is likely the same person (name-format variance); "Ravi Kumar" vs "Amit Singh" is a real conflict.
+- **Area conflict** — e.g. 246 m² vs 262 m², flagged when the difference exceeds a configured tolerance.
+- **Boundary conflict** — same real-world parcel, differing geometry; compute spatial difference/overlap.
+- **Missing data** — exists in one dataset, absent in another → `MISSING_MUNICIPAL_RECORD` (or equivalent).
+
+Conflict object shape:
+```json
+{ "type": "AREA_MISMATCH", "severity": "MEDIUM", "description": "..." }
+```
+
+## §13. Unified record shape
+
+```json
+{
+  "parcel_id": "P101",
+  "owner_name": "Ravi Kumar",
+  "area": 246,
+  "building_id": "B21",
+  "confidence": 96,
+  "status": "AUTO_VERIFIED",
+  "sources": ["cadastral", "municipal", "drone"],
+  "conflicts": []
+}
+```
+Problematic case:
+```json
+{
+  "parcel_id": "P102",
+  "owner_name": null,
+  "confidence": 82,
+  "status": "REQUIRES_REVIEW",
+  "sources": ["cadastral", "municipal"],
+  "conflicts": ["OWNER_MISMATCH", "AREA_MISMATCH"]
+}
+```
+For the prototype a flat `sources` array per record is enough provenance; per-field provenance (`{"owner_name": {"value": "...", "sources": [...]}}`) is a stretch goal, not required.
+
+## §14. Map requirements
+
+Leaflet is a core part of the prototype, not decoration — do not ship a table-only app.
+
+**Layers (toggleable):** Unified Parcels, Cadastral, Municipal, Drone Buildings. (Revenue/Utilities/GNSS/Imagery are future-scope checkboxes only, not implemented.)
+
+**Click interaction — clean record:**
+```
+PARCEL P101
+Owner: Ravi Kumar   Area: 246 m²   Building: B21
+Sources: ✓ Cadastral ✓ Municipal ✓ Drone
+Confidence: 96%   Status: AUTO VERIFIED
+Conflicts: None
+```
+**Click interaction — problem record:**
+```
+PARCEL P102
+Confidence: 82%   Status: REQUIRES REVIEW
+⚠ Owner mismatch   ⚠ Area mismatch
+[Review Record]
+```
+Problematic parcels must be visually distinct on the map — but never by color alone; pair it with a label/icon/status text for accessibility.
+
+## §15. Data table
+
+Columns: `Parcel ID | Owner | Area | Building | Sources | Confidence | Status | Conflicts | Action`.
+Search by parcel ID / property ID / owner / building ID. Filters: All / Verified / Requires Review / Conflicts / Missing Data, plus a confidence-range filter (`<90%`, `90–95%`, `>95%`). Clicking a row should focus the corresponding map feature, and vice versa where practical — this sync is what makes it feel like one GIS system instead of two disconnected screens.
+
+## §16. Dashboard
+
+Real metrics only, pulled from actual processing results — never hardcode fake numbers once the pipeline works:
+```
+Datasets: 3   Records Processed: 1,245   Matched: 1,102
+Conflicts: 43   Human Review: 17   High Confidence: 89%
+```
+
+## §17. Screens (upload / processing / results / review)
+
+**Upload:** one upload control per dataset type (Cadastral, Municipal, Drone Building), plus a "Process Data" action. GeoJSON is the required format for the prototype; don't burn time on other formats.
+
+**Processing:** a real (not faked) progress indicator reflecting actual backend stages — `Reading datasets → Detecting schema → Normalizing fields → Normalizing CRS → Validating geometry → Matching records → Detecting conflicts → Calculating confidence`. If exact stage sync is hard, a simpler real "processing" state is acceptable — but never fabricate progress that doesn't reflect what's happening.
+
+**Result summary:** `1,245 records processed · 1,102 matches · 43 conflicts · 17 require review`, with links to Map / Records / Review.
+
+**Human review list:** only uncertain/conflicting records, each showing confidence and the specific conflict reasons, linking into the full source comparison (§11).
+
+## §18. Navigation shape
+
+```
+LANDHARMONIZE
+├── Dashboard
+├── Datasets
+├── Processing
+├── Unified Map
+├── Records
+└── Review
+```
+Professional, clean, information-dense but readable, restrained, map-centric. Not overdesigned.
+
+## §19. Optional AI (never core-path)
+
+- **Schema mapping suggestion**: `"holder_nm"` → suggest `owner_name`, reviewable, never auto-applied.
+- **Conflict explanation**: turn already-computed numbers into plain language, e.g. *"the cadastral and municipal records likely represent the same parcel because their geometries overlap by 91%, but owner names differ substantially and reported areas differ by ~7.7%."*
+
+**Hard rule:** an LLM is never authoritative for geometry, coordinates, area, distance, spatial relationships, record IDs, or government records. Those come only from real data and deterministic algorithms.
+
+## §20. What the prototype does NOT claim
+
+Not: legal ownership determination, authoritative title verification, production government deployment, perfect matching, legal cadastral finalization, guaranteed accuracy, nationwide scalability, real-time integration with all government systems, or real government database access unless legitimately provided.
+
+## §21. Core value proposition (say this to judges)
+
+> "We transform fragmented and inconsistent geospatial datasets into a unified, validated and confidence-scored land information layer, while keeping humans in the loop for uncertain cases."
+
+## §22. 2-minute demo script
+
+- **0:00–0:20** — explain the problem: the same parcel can have different IDs, names, boundaries, areas across sources.
+- **0:20–0:35** — upload Cadastral, Municipal, Drone datasets.
+- **0:35–0:50** — click Process; show schema normalization, CRS normalization, geometry validation, spatial matching, conflict detection happening.
+- **0:50–1:10** — open Unified Map, click a clean parcel, show owner/area/building/sources/confidence.
+- **1:10–1:30** — click a problem parcel, show 82% with owner + area mismatch.
+- **1:30–1:45** — human reviews it: Accept / Reject / Resolve.
+- **1:45–2:00** — back to the map, close with the core value proposition (§21).
+
+## §23. Sample data test cases (must all exist, deterministically)
+
+| Case | Scenario |
+|---|---|
+| A | High-confidence perfect match |
+| B | Name variation ("Ravi Kumar" vs "Ravi K.") — should still match |
+| C | Genuine owner conflict ("Ravi Kumar" vs "Amit Singh") — should flag |
+| D | Area discrepancy (e.g. 246 m² vs 268 m²) — flagged per tolerance |
+| E | Boundary mismatch — same parcel, differing geometry |
+| F | Missing record — exists in one dataset, absent in another |
+| G | Low-confidence candidate, below 90% |
+
+No unseeded randomness — a fixed seed if variation is generated, so results are reproducible every run, offline, with no dependency on external APIs or live government servers.
+
+## §24. Future scope (explicitly not MVP)
+
+Versioned geospatial repository (GitHub-like project → dataset → versions, public/private, org access, audit trail, rollback, publishing); manual map editing (draw/edit/split/merge); additional sources (revenue, utility, GNSS/CORS, ORI, DSM/DTM, satellite); advanced GeoAI (CV, change detection, automated topology correction, imagery-to-vector extraction); auth/RBAC beyond a minimal demo login; dataset versioning; large-scale cloud deployment.
+
+## §25. Definition of done (full prototype)
+
+A user, from the browser alone, with no manual code intervention, can: open the app → create/select a project → upload all three datasets → start processing → see status → see normalized data → see matches with confidence → see conflicts → open the unified map → click a parcel → view its info → open a low-confidence record → compare sources → accept/reject/resolve → see the updated status reflected everywhere → search/filter records → and repeat the whole flow deterministically.

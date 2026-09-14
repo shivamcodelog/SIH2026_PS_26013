@@ -1,0 +1,24 @@
+/**
+ * JavaScript Data Schemas and Entity Status Constants for SIH26013
+ * (Strictly JavaScript - no TypeScript types)
+ */
+
+export const DATASET_TYPES = {
+  CADASTRAL: 'CADASTRAL',
+  MUNICIPAL: 'MUNICIPAL',
+  DRONE: 'DRONE'
+};
+
+export const MATCH_STATUS = {
+  HIGH_CONFIDENCE: 'HIGH_CONFIDENCE',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  CONFLICT: 'CONFLICT',
+  UNMATCHED: 'UNMATCHED'
+};
+
+export const CONFLICT_TYPES = {
+  OWNER_MISMATCH: 'OWNER_MISMATCH',
+  AREA_DISCREPANCY: 'AREA_DISCREPANCY',
+  BOUNDARY_SHIFT: 'BOUNDARY_SHIFT',
+  MISSING_RECORD: 'MISSING_RECORD'
+};

@@ -1,0 +1,15 @@
+# ==============================================================================
+# SIH26013 - Geo Engine (FastAPI & Geospatial Computation) Dependencies
+# ==============================================================================
+
+fastapi>=0.110.0,<1.0.0
+uvicorn[standard]>=0.28.0,<1.0.0
+pydantic>=2.6.0,<3.0.0
+
+# Geospatial Computation & Geometry Validation
+shapely>=2.0.0
+pyproj>=3.6.0
+geopandas>=0.14.0
+
+# Database Driver
+psycopg2-binary>=2.9.9

@@ -12,6 +12,24 @@
       "sourceType": "github",
       "skillPath": "skills/design-postgres-tables/SKILL.md",
       "computedHash": "08663a63354a5c8f8893eaf4f62c6cef54182a7cce2a4c3a0dab4ce387ef055a"
+    },
+    "frontend-design": {
+      "source": "sickn33/agentic-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "808e01b929a2b0fabaede596026c8072ba967fe970ac331f2e75367ce548b3c0"
+    },
+    "redesign-existing-projects": {
+      "source": "sickn33/agentic-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/redesign-existing-projects/SKILL.md",
+      "computedHash": "71b9fe8cd3d96a8963d179e4c11944002a648ad79da053b972bfce6663bd3b5e"
+    },
+    "ui-review": {
+      "source": "sickn33/agentic-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-review/SKILL.md",
+      "computedHash": "7a10b56313b3f441f849b46dfca0a6a3f72b39fa911cb4cec6c5f9f9e829d078"
     }
   }
 }

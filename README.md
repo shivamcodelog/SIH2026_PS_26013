@@ -6,9 +6,9 @@
 
 [![Smart India Hackathon](https://img.shields.io/badge/Smart%20India%20Hackathon-2024%2F2026-orange.svg)](https://sih.gov.in/)
 [![Problem Statement](https://img.shields.io/badge/Problem%20Statement-26013-blue.svg)](#-problem-statement)
-[![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite-61dafb.svg)](frontend/)
-[![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-339933.svg)](backend/)
-[![Geo Engine](https://img.shields.io/badge/Geo%20Engine-FastAPI%20%7C%20GeoPandas-009688.svg)](#-technology-stack)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20JavaScript%20%7C%20Tailwind-61dafb.svg)](frontend/)
+[![API Gateway](https://img.shields.io/badge/API%20Gateway-Node.js%20%7C%20Express%20%7C%20JS-339933.svg)](node-server/)
+[![Geo Engine](https://img.shields.io/badge/Geo%20Engine-FastAPI%20%7C%20GeoPandas-009688.svg)](geo-engine/)
 [![Spatial DB](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20PostGIS-336791.svg)](database/)
 [![License](https://img.shields.io/badge/License-ISC-green.svg)](LICENSE)
 
@@ -27,8 +27,9 @@
    - [Prerequisites](#prerequisites)
    - [Environment Configuration](#1-environment-configuration)
    - [Spatial Database Setup](#2-spatial-database-setup)
-   - [Backend API Setup](#3-backend-api-setup)
-   - [Frontend WebGIS Setup](#4-frontend-webgis-setup)
+   - [API Gateway Setup (Node/Express)](#3-api-gateway-setup-nodeserver)
+   - [FastAPI Geospatial Engine Setup](#4-fastapi-geospatial-engine-setup-geoengine)
+   - [Frontend WebGIS Setup](#5-frontend-webgis-setup-frontend)
 8. [Sample Datasets & Harmonization Pipeline](#-sample-datasets--harmonization-pipeline)
 9. [Mission Roadmap](#-mission-roadmap)
 10. [Authors & Contribution](#-authors--contribution)
@@ -42,7 +43,7 @@ Urban land record administration faces severe friction due to fragmented, multi-
 **SIH26013** is an end-to-end intelligent geospatial harmonization platform. It automates dataset ingestion, coordinate reprojection, spatial and semantic entity matching, topological conflict detection, and confidence scoring. Discrepancies below certainty thresholds are seamlessly dispatched to a human-in-the-loop review workflow, while unified layers are projected onto an interactive WebGIS map interface.
 
 > [!NOTE]
-> This repository is built according to the **SIH26013 Mission Playbook** and architectural specifications, emphasizing deterministic spatial accuracy, maintainability, and clean separation of concerns.
+> This repository strictly uses **pure JavaScript** (`.js`, `.jsx`) across the entire JavaScript ecosystem (React & Node.js). TypeScript is intentionally excluded to maintain rapid prototyping velocity, clean code structure, and zero transpilation overhead.
 
 ---
 
@@ -78,7 +79,7 @@ Urban land record administration faces severe friction due to fragmented, multi-
 
 ```mermaid
 flowchart TD
-    User([Urban Official / Surveyor]) -->|Interacts| UI[React 19 + Vite WebGIS]
+    User([Urban Official / Surveyor]) -->|Interacts| UI[React 19 + JavaScript WebGIS]
     
     subgraph Frontend [Presentation Layer]
         UI --> MapView[Leaflet Map View]
@@ -86,14 +87,14 @@ flowchart TD
         UI --> ReviewQueue[Human Review Interface]
     end
     
-    UI -->|REST API / JSON| Gateway[Node.js + Express Gateway]
+    UI -->|REST API / JSON| Gateway[Node.js + Express Gateway (node-server)]
     
     subgraph Backend [Application & Orchestration Layer]
         Gateway --> ProjectMgr[Project & Dataset Manager]
         Gateway --> ReviewService[Review & Conflict Store]
     end
     
-    Gateway -->|Forward Geospatial Jobs| FastEngine[FastAPI Geospatial Engine]
+    Gateway -->|Forward Geospatial Jobs| FastEngine[FastAPI Geospatial Engine (geo-engine)]
     
     subgraph GeoEngine [Spatial Computation Layer]
         FastEngine --> Normalizer[CRS & Schema Normalization]
@@ -111,8 +112,8 @@ flowchart TD
 
 | Layer | Technologies | Primary Responsibility |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, Vite, Vanilla CSS / Tailwind, Leaflet | Interactive WebGIS interface, layer toggle, conflict review console |
-| **API Gateway** | Node.js (ESM), Express | REST API, dataset metadata, project sessions, review audit log |
+| **Frontend** | React 19, JavaScript (`.jsx`), Vite, Tailwind CSS, Leaflet | Interactive WebGIS interface, layer toggle, conflict review console |
+| **API Gateway** | Node.js (ESM), Express, JavaScript (`.js`) | REST API, dataset metadata, project sessions, review audit log |
 | **Geo Engine** | Python 3.10+, FastAPI, GeoPandas, Shapely, PyProj | Geometry validation, coordinate reprojecting, spatial join, IoU scoring |
 | **Database** | PostgreSQL 16+, PostGIS 3.4+ | Persistent spatial tables, spatial indexing (GIST), spatial queries (`ST_Intersects`, `ST_Area`) |
 | **DevOps** | Docker, Docker Compose, Git | Containerized PostGIS instance, local developer reproducibility |
@@ -125,19 +126,43 @@ flowchart TD
 SIH26013/
 ├── .agent/                 # GSD agent configuration & automation hooks
 ├── .agents/                # Team agent skills (Leaflet, PostGIS, API Design)
-├── backend/                # Node.js API Gateway
-│   ├── .env.example        # Backend environment variables template
-│   ├── index.js            # Gateway entrypoint & health probe
-│   └── package.json        # Backend dependencies & scripts
 ├── database/               # Database migrations & spatial schema
 │   └── init.sql            # PostGIS extension & spatial baseline
 ├── docs/                   # Master Build Specifications & Architecture docs
 │   └── PROJECT_CONTEXT.md  # Core project requirements & specification
-├── frontend/               # React 19 + Vite WebGIS application
-│   ├── .env.example        # Frontend environment variables template
-│   ├── src/                # React source code (components, maps, views)
+├── frontend/               # React 19 + JavaScript + Tailwind WebGIS
+│   ├── .env.example        # Frontend environment template
+│   ├── src/
+│   │   ├── components/     # UI building blocks (Header, etc.)
+│   │   ├── pages/          # Full page views (Home, etc.)
+│   │   ├── api/            # API client calls
+│   │   ├── hooks/          # Custom React hooks (useHealth, etc.)
+│   │   ├── types/          # JavaScript schemas & constants
+│   │   ├── map/            # Leaflet map modules
+│   │   ├── lib/            # Utility helpers
+│   │   ├── App.jsx         # App root component
+│   │   └── main.jsx        # React entrypoint
 │   ├── package.json        # Frontend dependencies
-│   └── vite.config.js      # Vite build configuration
+│   └── vite.config.js      # Vite build configuration with Tailwind plugin
+├── geo-engine/             # FastAPI Geospatial Engine
+│   ├── app/
+│   │   ├── routes/         # FastAPI endpoint routers (health, etc.)
+│   │   ├── services/       # Geospatial calculation services
+│   │   ├── models/         # Pydantic validation schemas
+│   │   ├── utils/          # CRS and projection utilities
+│   │   └── main.py         # FastAPI main application
+│   ├── .env.example        # Geo Engine environment template
+│   └── requirements.txt    # Python geospatial dependencies
+├── node-server/            # Node.js + Express API Gateway
+│   ├── src/
+│   │   ├── controllers/    # Request handlers (health, etc.)
+│   │   ├── routes/         # Express routing definitions
+│   │   ├── services/       # Business logic & orchestration
+│   │   ├── middleware/     # Error handling & authentication
+│   │   ├── config/         # Environment configuration
+│   │   └── app.js          # Express app entrypoint
+│   ├── .env.example        # Node server environment template
+│   └── package.json        # Node server dependencies
 ├── sample-data/            # Synthetic benchmark datasets
 │   └── README.md           # Dataset documentation (Cadastral, Municipal, Drone)
 ├── .env.example            # Monorepo/Root environment template
@@ -185,12 +210,15 @@ The database will initialize automatically with the PostGIS extension loaded via
 
 ---
 
-### 3. Backend API Setup
+### 3. API Gateway Setup (`node-server/`)
 
-Navigate to the `backend/` directory and start the server:
+Navigate to the `node-server/` directory, install dependencies, and start the server:
 
 ```bash
-cd backend
+cd node-server
+
+# Install dependencies (first time only)
+npm install
 
 # Start backend server
 npm start
@@ -199,14 +227,47 @@ npm start
 npm run dev
 ```
 
-The backend server will run on `http://localhost:5000`. Test the health endpoint:
+The server runs on `http://localhost:5000`. Test the health endpoint:
 ```bash
 curl http://localhost:5000/api/health
+```
+Response:
+```json
+{"success": true, "service": "node-server"}
 ```
 
 ---
 
-### 4. Frontend WebGIS Setup
+### 4. FastAPI Geospatial Engine Setup (`geo-engine/`)
+
+In a new terminal, run the FastAPI service:
+
+```bash
+cd geo-engine
+
+# Run the FastAPI server
+python -m uvicorn app.main:app --port 8000 --reload
+```
+
+The FastAPI engine runs on `http://localhost:8000`. Test the health endpoint:
+```bash
+curl http://localhost:8000/health
+```
+Response:
+```json
+{
+  "success": true,
+  "service": "geo-engine",
+  "type": "FastAPI Geospatial Engine",
+  "status": "online"
+}
+```
+
+Interactive API documentation is available at: **`http://localhost:8000/docs`**
+
+---
+
+### 5. Frontend WebGIS Setup (`frontend/`)
 
 In a new terminal, launch the Vite development server:
 
@@ -257,7 +318,7 @@ Development follows the structured [`mission-playbook.md`](mission-playbook.md):
 
 ## 👥 Authors & Acknowledgments
 
-* **Lead Developer**: Shivam Kumar ([@shivamm-k](https://github.com/))
+* **Lead Developer**: Shivam Kumar aka sunflower ([@shivamcodelog](https://github.com/shivamcodelog))
 * **Event**: Smart India Hackathon (SIH)
 * **Problem Statement**: SIH26013
 
