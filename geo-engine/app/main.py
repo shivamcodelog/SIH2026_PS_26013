@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.health import router as health_router
 from app.routes.ingest import router as ingest_router
+from app.routes.match import router as match_router
 
 app = FastAPI(
     title="SIH26013 Geospatial Engine",
@@ -23,6 +24,7 @@ app.add_middleware(
 # Register routes
 app.include_router(health_router)
 app.include_router(ingest_router)
+app.include_router(match_router)
 
 @app.get("/")
 def root():
@@ -30,7 +32,8 @@ def root():
         "message": "SIH26013 FastAPI Geospatial Engine",
         "docs": "/docs",
         "health": "/health",
-        "ingest": "/ingest"
+        "ingest": "/ingest",
+        "match": "/match"
     }
 
 if __name__ == "__main__":
