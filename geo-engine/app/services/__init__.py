@@ -18,6 +18,7 @@ from app.services.conflicts import (
     evaluate_match_conflicts,
     detect_dataset_conflicts,
 )
+from app.services.unified import generate_unified_records
 
 __all__ = [
     "detect_schema_mapping",
@@ -42,4 +43,5 @@ __all__ = [
     "detect_missing_record_conflict",
     "evaluate_match_conflicts",
     "detect_dataset_conflicts",
+    "generate_unified_records",
 ]

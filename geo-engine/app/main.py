@@ -5,6 +5,7 @@ from app.routes.health import router as health_router
 from app.routes.ingest import router as ingest_router
 from app.routes.match import router as match_router
 from app.routes.conflicts import router as conflicts_router
+from app.routes.unify import router as unify_router
 
 app = FastAPI(
     title="SIH26013 Geospatial Engine",
@@ -27,6 +28,7 @@ app.include_router(health_router)
 app.include_router(ingest_router)
 app.include_router(match_router)
 app.include_router(conflicts_router)
+app.include_router(unify_router)
 
 @app.get("/")
 def root():
@@ -36,7 +38,8 @@ def root():
         "health": "/health",
         "ingest": "/ingest",
         "match": "/match",
-        "conflicts": "/conflicts"
+        "conflicts": "/conflicts",
+        "unify": "/unify",
     }
 
 if __name__ == "__main__":

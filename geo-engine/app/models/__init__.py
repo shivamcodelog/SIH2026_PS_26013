@@ -8,6 +8,13 @@ from app.models.conflicts import (
     EntityConflicts,
     ConflictDetectionResponse,
 )
+from app.models.unified import (
+    UnifiedStatus,
+    GeometrySelectionRule,
+    UnifiedRecord,
+    UnifiedRecordGenerationConfig,
+    UnifiedRecordGenerationResponse,
+)
 
 __all__ = [
     "IngestionResponse",
@@ -22,4 +29,9 @@ __all__ = [
     "ConflictToleranceConfig",
     "EntityConflicts",
     "ConflictDetectionResponse",
+    "UnifiedStatus",
+    "GeometrySelectionRule",
+    "UnifiedRecord",
+    "UnifiedRecordGenerationConfig",
+    "UnifiedRecordGenerationResponse",
 ]
