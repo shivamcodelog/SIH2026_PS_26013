@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "design-postgis-tables": {
+      "source": "timescale/pg-aiguide",
+      "sourceType": "github",
+      "skillPath": "skills/design-postgis-tables/SKILL.md",
+      "computedHash": "22109cfc604ed415bc9b4ccc1b19fbbe3cc99498333a30d1bb4da2cddb1f2507"
+    },
+    "design-postgres-tables": {
+      "source": "timescale/pg-aiguide",
+      "sourceType": "github",
+      "skillPath": "skills/design-postgres-tables/SKILL.md",
+      "computedHash": "08663a63354a5c8f8893eaf4f62c6cef54182a7cce2a4c3a0dab4ce387ef055a"
+    }
+  }
+}
