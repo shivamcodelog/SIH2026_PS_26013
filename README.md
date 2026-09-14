@@ -208,6 +208,21 @@ docker compose ps
 
 The database will initialize automatically with the PostGIS extension loaded via [`database/init.sql`](database/init.sql).
 
+#### Reproducible Schema Migrations & Spatial Verification
+
+You can rebuild and verify the schema anytime from code (Node.js or Python):
+
+```bash
+# Option A: Run migration & spatial test via Node.js
+node database/migrate.js
+
+# Option B: Run verification & spatial calculation test via Python
+python database/verify_postgis.py
+
+# Option C: From node-server
+cd node-server && npm run db:migrate
+```
+
 ---
 
 ### 3. API Gateway Setup (`node-server/`)
@@ -306,7 +321,7 @@ The prototype processes three representative datasets located in [`sample-data/`
 Development follows the structured [`mission-playbook.md`](mission-playbook.md):
 
 - [x] **Mission 1: Project Foundation** — Environment audit, directory scaffolding, Docker Compose, .gitignore, and README documentation.
-- [ ] **Mission 2: Spatial Database Schema** — PostGIS tables (`projects`, `datasets`, `source_records`, `matches`, `conflicts`, `reviews`).
+- [x] **Mission 2: Spatial Database Schema** — PostGIS tables (`projects`, `datasets`, `records`, `matches`, `conflicts`, `reviews`), GiST spatial index, reproducible migrations and verification (`ST_Area`, `ST_Intersects`).
 - [ ] **Mission 3: Synthetic GeoJSON Benchmark Data** — Deterministic test parcels and ground truth pairs.
 - [ ] **Mission 4: FastAPI Ingestion Engine** — Geometry validation, schema detection, and CRS transformation.
 - [ ] **Mission 5: Harmonization & Conflict Detection Engine** — Spatial IoU, Hausdorff distance, attribute scoring.

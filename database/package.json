@@ -1,0 +1,14 @@
+{
+  "name": "sih26013-database",
+  "version": "1.0.0",
+  "description": "Database migrations and spatial verification for SIH26013",
+  "type": "module",
+  "scripts": {
+    "migrate": "node migrate.js",
+    "verify:py": "python verify_postgis.py"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.3"
+  }
+}
