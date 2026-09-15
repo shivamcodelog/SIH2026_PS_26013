@@ -6,13 +6,23 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-    ...options,
-  });
-  const body = await res.json();
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      ...options,
+    });
+  } catch (err) {
+    // Catch completely failed requests (e.g. Node server down, ECONNREFUSED)
+    const error = new Error('Node Server Unavailable. Please check if the backend is running.');
+    error.status = 503;
+    error.body = { error: 'Node Server Unavailable' };
+    throw error;
+  }
+
+  const body = await res.json().catch(() => ({})); // Handle empty/non-JSON bodies gracefully
   if (!res.ok) {
-    const msg = body?.error?.message || body?.message || `HTTP ${res.status}`;
+    const msg = body?.error?.message || body?.error || body?.message || `HTTP ${res.status}`;
     const err = new Error(msg);
     err.status = res.status;
     err.body = body;
@@ -40,12 +50,25 @@ export const api = {
 
   // ── Datasets ───────────────────────────────────────────────────────────────
   getDatasets: (projectId) => request(`/projects/${projectId}/datasets`),
-  addDataset: (projectId, formData) =>
-    fetch(`${API_BASE}/projects/${projectId}/datasets`, { method: 'POST', body: formData }).then(async (r) => {
-      const b = await r.json();
-      if (!r.ok) { const e = new Error(b?.error?.message || `HTTP ${r.status}`); e.status = r.status; throw e; }
-      return b;
-    }),
+  addDataset: async (projectId, formData) => {
+    let r;
+    try {
+      r = await fetch(`${API_BASE}/projects/${projectId}/datasets`, { method: 'POST', body: formData });
+    } catch (err) {
+      const error = new Error('Node Server Unavailable. Please check if the backend is running.');
+      error.status = 503;
+      error.body = { error: 'Node Server Unavailable' };
+      throw error;
+    }
+    const b = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const msg = b?.error?.message || b?.error || b?.message || `HTTP ${r.status}`;
+      const e = new Error(msg);
+      e.status = r.status;
+      throw e;
+    }
+    return b;
+  },
 
   // ── Processing ─────────────────────────────────────────────────────────────
   processProject: (projectId, options = {}) =>
@@ -68,7 +91,37 @@ export const api = {
   },
 
   // ── Map ────────────────────────────────────────────────────────────────────
-  getMap: (projectId) => request(`/projects/${projectId}/map`),
+  getMap: async (projectId) => {
+    return request(`/projects/${projectId}/map`);
+  },
+
+  downloadGeoJSON: async (projectId) => {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/export/geojson`);
+    if (!response.ok) throw new Error('Failed to download GeoJSON');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project_${projectId}_unified.geojson`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  downloadCSV: async (projectId) => {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/export/csv`);
+    if (!response.ok) throw new Error('Failed to download CSV');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project_${projectId}_results.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
 
   // ── Reviews ────────────────────────────────────────────────────────────────
   postDecision: (matchId, body) =>

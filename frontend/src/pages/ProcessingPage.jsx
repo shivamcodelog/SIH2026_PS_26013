@@ -250,9 +250,9 @@ export default function ProcessingPage() {
                 return (
                   <div
                     key={stage.id}
-                    className={`flex items-start gap-3 p-2.5 rounded border transition-all ${
+                    className={`flex items-start gap-3 p-3 rounded-xl border backdrop-blur-md transition-all duration-300 ${
                       isRunning
-                        ? 'bg-blue-950/20 border-blue-500/50 text-slate-100'
+                        ? 'bg-blue-950/20 border-blue-500/50 text-slate-100 shadow-[0_0_15px_rgba(59,130,246,0.15)] scale-[1.02]'
                         : isDone
                         ? 'bg-[#111724]/60 border-emerald-500/20 text-slate-200'
                         : 'bg-[#090d14]/40 border-transparent text-slate-600'

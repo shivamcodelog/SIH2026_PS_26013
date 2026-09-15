@@ -15,6 +15,7 @@ export default function ReviewPage() {
   const [records, setRecords] = useState([]);
   const [selectedRecordId, setSelectedRecordId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [reviewerName, setReviewerName] = useState('Survey Officer Sharma');
   const [reviewComment, setReviewComment] = useState('');
@@ -25,6 +26,7 @@ export default function ReviewPage() {
   const loadReviewQueue = async () => {
     if (!activeProject?.id) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await api.getResults(activeProject.id, { status: 'REQUIRES_REVIEW' });
       const recs = res.records || res.data?.records || [];
@@ -33,7 +35,8 @@ export default function ReviewPage() {
         setSelectedRecordId(recs[0].match_id);
       }
     } catch (err) {
-      console.error('Failed to load review queue:', err);
+      setError(err.message || 'Failed to load review queue');
+      setRecords([]);
     } finally {
       setLoading(false);
     }
@@ -126,6 +129,14 @@ export default function ReviewPage() {
         <div className="p-16 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
           <span className="animate-spin">⟳</span> Loading review queue...
         </div>
+      ) : error ? (
+        <div className="bg-[#0d121c] border border-red-500/50 rounded-lg p-12 flex flex-col items-center justify-center text-center">
+          <span className="text-3xl text-red-500 mb-3">⚠</span>
+          <h3 className="text-sm font-semibold text-red-400 mb-1">{error}</h3>
+          <p className="text-xs text-slate-500 max-w-md">
+            Could not retrieve review queue from the backend database. Ensure the Node server and PostgreSQL are running.
+          </p>
+        </div>
       ) : records.length === 0 ? (
         <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-12 text-center space-y-3">
           <span className="text-3xl text-emerald-400">✓</span>
@@ -201,23 +212,23 @@ export default function ReviewPage() {
           {/* Right Columns: Comparison & Decision Panel (§11, §31) */}
           <div className="md:col-span-2 space-y-5">
             {activeRecord && (
-              <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-5 space-y-5">
+              <div className="bg-[#0d121c]/90 backdrop-blur-md border border-[#1c2638] rounded-xl p-6 space-y-5 shadow-lg">
                 {/* Header of Active Record */}
-                <div className="flex items-center justify-between border-b border-[#1c2638] pb-3">
+                <div className="flex items-center justify-between border-b border-[#1c2638] pb-4">
                   <div>
                     <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                      <span>Comparison Dossier:</span>
-                      <span className="text-blue-400 font-mono text-base">{activeRecord.parcel_id}</span>
+                      <span className="opacity-70">Comparison Dossier:</span>
+                      <span className="text-blue-400 font-mono text-lg bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">{activeRecord.parcel_id}</span>
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-1">
                       Cross-source comparison between Cadastral Survey and Municipal Records
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-500 uppercase">Composite Score</span>
+                  <div className="text-right flex flex-col items-end">
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-0.5">Composite Score</span>
                     <p
-                      className={`text-lg font-bold font-mono ${
-                        activeRecord.confidence >= 70 ? 'text-amber-400' : 'text-red-400'
+                      className={`text-2xl font-bold font-mono px-3 py-1 rounded-md border ${
+                        activeRecord.confidence >= 70 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-red-400 bg-red-500/10 border-red-500/30'
                       }`}
                     >
                       {activeRecord.confidence}%
@@ -226,13 +237,13 @@ export default function ReviewPage() {
                 </div>
 
                 {/* Side-by-Side Source Comparison Table (§31) */}
-                <div className="border border-[#1c2638] rounded-lg overflow-hidden">
+                <div className="border border-[#1c2638] rounded-lg overflow-hidden shadow-inner bg-[#090d14]/50">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="bg-[#111724] border-b border-[#1c2638] text-slate-400 font-semibold uppercase">
-                        <th className="px-4 py-2 text-left w-1/4">Attribute</th>
-                        <th className="px-4 py-2 text-left w-3/8 text-blue-400">Cadastral Record</th>
-                        <th className="px-4 py-2 text-left w-3/8 text-emerald-400">Municipal Record</th>
+                      <tr className="bg-[#111724]/80 border-b border-[#1c2638] text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
+                        <th className="px-4 py-3 text-left w-1/4 border-r border-[#1c2638]/50">Attribute</th>
+                        <th className="px-4 py-3 text-left w-3/8 text-blue-400 border-r border-[#1c2638]/50">Cadastral Record</th>
+                        <th className="px-4 py-3 text-left w-3/8 text-emerald-400">Municipal Record</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#1c2638] font-mono">

@@ -1,5 +1,4 @@
 import React from 'react';
-import { HARMONIZATION_PAIRS } from '../map/mockGeoData';
 
 export default function LayerControlPanel({
   activeLayers,
@@ -7,7 +6,8 @@ export default function LayerControlPanel({
   selectedPairId,
   onSelectPair,
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  realMapData
 }) {
   const toggleLayer = (key) => {
     setActiveLayers(prev => ({ ...prev, [key]: !prev[key] }));
@@ -180,49 +180,59 @@ export default function LayerControlPanel({
           </div>
         </section>
 
-        {/* Entity Matches & Review Queue List */}
         <section className="space-y-2">
           <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-wider text-slate-500">
-            <span>Spatial Pairs ({HARMONIZATION_PAIRS.length})</span>
+            <span>Spatial Pairs ({realMapData?.features?.length || 0})</span>
             <span className="text-slate-400">IoU Score</span>
           </div>
 
           <div className="space-y-1.5">
-            {HARMONIZATION_PAIRS.map((pair) => {
-              const isSelected = selectedPairId === pair.pair_id;
-              const isAuto = pair.status === 'AUTO_MATCHED';
-              const isConflict = pair.status === 'CONFLICT';
+            {(!realMapData || !realMapData.features || realMapData.features.length === 0) ? (
+              <div className="p-2 text-center text-slate-500 text-[10px] border border-[#1c2638] rounded border-dashed">
+                No pairs found.
+              </div>
+            ) : (
+              realMapData.features.map((feature) => {
+                const pair = feature.properties;
+                // Determine ID (handle unified vs individual features)
+                const featureId = pair.pair_id || pair.parcel_id || feature.id;
+                if (!featureId) return null;
 
-              return (
-                <div
-                  key={pair.pair_id}
-                  onClick={() => onSelectPair(pair.pair_id)}
-                  className={`p-2 rounded border cursor-pointer transition-all ${
-                    isSelected
-                      ? 'bg-[#151d2d] border-blue-500 text-white shadow-lg'
-                      : 'bg-[#090d14] border-[#1c2638] hover:border-slate-700 text-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-200">{pair.cadastral_id}</span>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                      isAuto
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : isConflict
-                        ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                        : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                    }`}>
-                      {pair.confidence_score}%
-                    </span>
-                  </div>
+                const isSelected = selectedPairId === featureId;
+                const isAuto = pair.status === 'AUTO_VERIFIED' || pair.status === 'HUMAN_VERIFIED';
+                const isConflict = pair.status === 'REQUIRES_REVIEW' && (pair.conflicts?.length > 0);
 
-                  <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                    <span className="truncate max-w-[140px]">{pair.cadastral_record.owner}</span>
-                    <span className="text-slate-500">⇄ {pair.municipal_id}</span>
+                return (
+                  <div
+                    key={featureId}
+                    onClick={() => onSelectPair(featureId)}
+                    className={`p-2 rounded border cursor-pointer transition-all ${
+                      isSelected
+                        ? 'bg-[#151d2d] border-blue-500 text-white shadow-lg'
+                        : 'bg-[#090d14] border-[#1c2638] hover:border-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-200">{pair.parcel_id || 'Unknown'}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                        isAuto
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          : isConflict
+                          ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                      }`}>
+                        {pair.confidence != null ? `${pair.confidence}%` : '—'}
+                      </span>
+                    </div>
+
+                    <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                      <span className="truncate max-w-[140px]">{pair.owner_name || 'No Owner Info'}</span>
+                      <span className="text-slate-500">⇄ {pair.building_id || 'No Building'}</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </section>
 

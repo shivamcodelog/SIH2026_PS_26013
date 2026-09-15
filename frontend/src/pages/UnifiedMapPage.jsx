@@ -27,6 +27,7 @@ export default function UnifiedMapPage() {
   // Real API map data (used if processing has run)
   const [realMapData, setRealMapData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Layer visibility state — 4 independent layers + conflict filter
   const [activeLayers, setActiveLayers] = useState({
@@ -49,13 +50,16 @@ export default function UnifiedMapPage() {
   // Fetch real processed map data from Node API gateway
   useEffect(() => {
     if (!activeProject?.id) return;
-    startTransition(() => setLoading(true));
+    startTransition(() => { setLoading(true); setError(null); });
     api.getMap(activeProject.id)
       .then((res) => {
         const fc = res.map || res.data?.map;
-        if (fc?.features?.length > 0) setRealMapData(fc);
+        setRealMapData(fc || { type: 'FeatureCollection', features: [] });
       })
-      .catch(() => { /* silently fall back to mock */ })
+      .catch((err) => {
+        setError(err.message || 'Failed to load map data');
+        setRealMapData({ type: 'FeatureCollection', features: [] });
+      })
       .finally(() => setLoading(false));
   }, [activeProject]);
 
@@ -86,58 +90,59 @@ export default function UnifiedMapPage() {
     <div className="h-full flex flex-col overflow-hidden bg-[#07090e]">
 
       {/* ── Sub-header ─────────────────────────────────────────────────────── */}
-      <div className="h-10 shrink-0 bg-[#0d121c] border-b border-[#1c2638] px-4 flex items-center justify-between text-xs">
+      <div className="h-12 shrink-0 bg-[#0d121c]/90 backdrop-blur-md border-b border-[#1c2638] px-5 flex items-center justify-between text-xs shadow-sm z-10">
         <div className="flex items-center gap-4">
-          <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-            <span className="text-emerald-400">◈</span> Unified Geospatial Canvas
+          <span className="font-semibold text-slate-200 flex items-center gap-2 tracking-wide text-sm">
+            <span className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">◈</span> Unified Geospatial Canvas
           </span>
           {activeProject && (
-            <span className="text-slate-500 font-mono text-[11px]">
-              PROJ: {activeProject.name}
+            <span className="text-slate-400 font-mono text-[11px] bg-[#111724] px-2 py-1 rounded-md border border-[#1c2638]">
+              PROJ: <span className="text-slate-300 font-bold">{activeProject.name}</span>
             </span>
           )}
           {loading && (
-            <span className="text-blue-400 flex items-center gap-1 animate-pulse text-[11px]">
-              <span className="animate-spin">⟳</span> Loading live data…
+            <span className="text-blue-400 flex items-center gap-1.5 font-medium animate-pulse text-[11px]">
+              <span className="animate-spin text-sm">⟳</span> Loading live data…
             </span>
           )}
           {realMapData && (
-            <span className="text-emerald-400 text-[11px] font-mono">
-              ● {realMapData.features.length} LIVE records
+            <span className="text-emerald-400 text-[11px] font-mono font-medium flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.8)]"></span>
+              {realMapData.features.length} LIVE records
             </span>
           )}
         </div>
 
         {/* Quick layer toggles in sub-header */}
-        <div className="flex items-center gap-2 font-mono text-[11px]">
+        <div className="flex items-center gap-2.5 font-mono text-[11px]">
           {[
-            { key: 'unified',   label: '◈ Unified',   color: 'text-emerald-400' },
-            { key: 'cadastral', label: '■ Cadastral',  color: 'text-blue-400' },
-            { key: 'municipal', label: '⬦ Municipal',  color: 'text-amber-400' },
-            { key: 'drone',     label: '▲ Drone',      color: 'text-cyan-400' },
-          ].map(({ key, label, color }) => (
+            { key: 'unified',   label: '◈ Unified',   color: 'text-emerald-400', activeBg: 'bg-emerald-500/10', activeBorder: 'border-emerald-500/40' },
+            { key: 'cadastral', label: '■ Cadastral', color: 'text-blue-400', activeBg: 'bg-blue-500/10', activeBorder: 'border-blue-500/40' },
+            { key: 'municipal', label: '⬦ Municipal', color: 'text-amber-400', activeBg: 'bg-amber-500/10', activeBorder: 'border-amber-500/40' },
+            { key: 'drone',     label: '▲ Drone',     color: 'text-cyan-400', activeBg: 'bg-cyan-500/10', activeBorder: 'border-cyan-500/40' },
+          ].map(({ key, label, color, activeBg, activeBorder }) => (
             <button
               key={key}
               onClick={() => setActiveLayers(prev => ({ ...prev, [key]: !prev[key] }))}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded border transition-colors ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all duration-200 hover:scale-[1.02] ${
                 activeLayers[key]
-                  ? `${color} border-current/30 bg-current/5`
-                  : 'text-slate-600 border-slate-700/30'
+                  ? `${color} ${activeBg} ${activeBorder} shadow-sm`
+                  : 'text-slate-500 border-[#2a3852] bg-[#111724]/50 hover:border-[#3b4b68] hover:text-slate-300'
               }`}
             >
               {label}
             </button>
           ))}
-          <span className="text-slate-700 mx-1">|</span>
+          <div className="w-px h-5 bg-[#2a3852] mx-1"></div>
           <button
             onClick={() => setActiveLayers(prev => ({ ...prev, conflictsOnly: !prev.conflictsOnly }))}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded border transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all duration-200 hover:scale-[1.02] ${
               activeLayers.conflictsOnly
-                ? 'text-red-400 border-red-500/40 bg-red-500/10'
-                : 'text-slate-500 border-slate-700/30 hover:text-slate-300'
+                ? 'text-red-400 border-red-500/50 bg-red-500/15 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+                : 'text-slate-500 border-[#2a3852] bg-[#111724]/50 hover:border-red-500/30 hover:text-red-400'
             }`}
           >
-            ⚠ Conflicts Only
+            <span className={activeLayers.conflictsOnly ? 'animate-pulse' : ''}>⚠</span> Conflicts Only
           </button>
         </div>
       </div>
@@ -149,40 +154,27 @@ export default function UnifiedMapPage() {
         <LayerControlPanel
           activeLayers={activeLayers}
           setActiveLayers={setActiveLayers}
-          selectedPairId={p?.pair_id || null}
+          selectedPairId={p?.pair_id || p?.parcel_id || p?.match_id || null}
           onSelectPair={(pairId) => {
-            // synthetic: build a feature to select from the pair_id
-            import('../map/mockGeoData.js').then(({ HARMONIZATION_PAIRS, CADASTRAL_DATASET }) => {
-              const pair = HARMONIZATION_PAIRS.find(hp => hp.pair_id === pairId);
-              if (!pair) return;
-              const cad = CADASTRAL_DATASET.features.find(f => f.id === pair.cadastral_id);
-              if (!cad) return;
-                const feature = {
-                type: 'Feature',
-                id: pair.pair_id,
-                properties: {
-                  parcel_id: pair.cadastral_id,
-                  pair_id: pair.pair_id,
-                  owner_name: pair.cadastral_record.owner,
-                  area: parseInt(pair.cadastral_record.area.replace(/[^0-9]/g, ''), 10),
-                  building_id: pair.building_ids[0] || null,
-                  confidence: pair.confidence_score,
-                  status: pair.status === 'AUTO_MATCHED' ? 'AUTO_VERIFIED' : 'REQUIRES_REVIEW',
-                  sources: [pair.cadastral_id, pair.municipal_id, ...pair.building_ids],
-                  conflicts: pair.flags.map(f => ({ type: f.type, severity: 'MEDIUM', description: f.detail })),
-                },
-                geometry: cad.geometry,
-                };
-                setSelectedFeature(feature);
-                setSelectedMatchId(feature.properties.parcel_id || feature.properties.match_id);
-            });
+            const feature = realMapData?.features?.find(f => (f.properties?.pair_id || f.properties?.parcel_id || f.properties?.match_id) === pairId);
+            if (feature) {
+              setSelectedFeature(feature);
+              setSelectedMatchId(pairId);
+            }
           }}
           isCollapsed={layerPanelCollapsed}
           onToggleCollapse={() => setLayerPanelCollapsed(v => !v)}
+          realMapData={realMapData}
         />
 
         {/* Leaflet Map Canvas */}
         <div className="flex-1 h-full relative">
+          {error && (
+            <div className="absolute inset-x-0 top-0 z-500 p-4 bg-red-950/90 text-red-200 border-b border-red-500/50 flex flex-col items-center justify-center text-sm font-mono shadow-xl backdrop-blur-sm">
+              <span className="font-bold text-red-400 mb-1 text-base">⚠ {error}</span>
+              <span>The end-to-end processing pipeline requires the backend to be online.</span>
+            </div>
+          )}
           <WebGISMap
             activeLayers={activeLayers}
             selectedFeature={selectedFeature}

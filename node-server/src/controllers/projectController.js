@@ -129,3 +129,60 @@ export const getMap = async (req, res, next) => {
     next(err);
   }
 };
+
+export const exportGeoJSON = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const mapData = await projectService.getProjectMap(id);
+    
+    // Set headers for file download
+    res.setHeader('Content-Disposition', `attachment; filename="project_${id}_unified.geojson"`);
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(200).send(JSON.stringify(mapData));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const exportCSV = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await projectService.getProjectResults(id, {});
+    
+    if (!result.records || result.records.length === 0) {
+      return res.status(404).json(errorResponse('No records found to export', 404));
+    }
+
+    // Define CSV header
+    const headers = [
+      'Match ID', 'Parcel ID', 'Owner Name', 'Area (sqm)', 'Building ID', 
+      'Confidence (%)', 'Status', 'Conflicts Count', 'Spatial Score', 
+      'Area Score', 'Attribute Score'
+    ];
+
+    // Map records to CSV rows
+    const rows = result.records.map(r => {
+      return [
+        r.id,
+        r.parcel_id || '',
+        `"${(r.owner_name || '').replace(/"/g, '""')}"`,
+        r.area || '',
+        r.building_id || '',
+        r.confidence || '',
+        r.status || '',
+        r.conflicts ? r.conflicts.length : 0,
+        r.spatial_score || '',
+        r.area_score || '',
+        r.attribute_score || ''
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    res.setHeader('Content-Disposition', `attachment; filename="project_${id}_results.csv"`);
+    res.setHeader('Content-Type', 'text/csv');
+    return res.status(200).send(csvContent);
+  } catch (err) {
+    next(err);
+  }
+};

@@ -74,48 +74,48 @@ function UploadCard({ sourceType, projectId, onUploaded }) {
   };
   const handleDragOver = (e) => e.preventDefault();
 
-  const borderColor = status === 'success' ? 'border-emerald-500/40' :
-                      status === 'error'   ? 'border-red-500/40' :
-                      status === 'uploading' ? 'border-blue-500/40' : 'border-[#2a3852]';
+  const borderColor = status === 'success' ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]' :
+                      status === 'error'   ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]' :
+                      status === 'uploading' ? 'border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]' : 'border-[#2a3852] hover:border-[#3b4b68] hover:shadow-lg hover:-translate-y-0.5';
 
   return (
     <div
-      className={`bg-[#0d121c] border rounded-lg p-5 transition-colors ${borderColor}`}
+      className={`backdrop-blur-md bg-[#0d121c]/80 border rounded-xl p-5 transition-all duration-300 ${borderColor}`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-xl">{sourceType.icon}</span>
+      <div className="flex items-center gap-4 mb-4">
+        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#111724] border border-[#2a3852] text-xl text-slate-300 shadow-inner">{sourceType.icon}</span>
         <div>
-          <p className="text-sm font-medium text-slate-200">{sourceType.label}</p>
-          <p className="text-xs text-slate-600">{sourceType.desc}</p>
+          <p className="text-sm font-semibold text-slate-200">{sourceType.label}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{sourceType.desc}</p>
         </div>
       </div>
 
       {status === 'uploading' && (
-        <div className="flex items-center gap-2 text-sm text-blue-400 mb-3">
+        <div className="flex items-center gap-2 text-sm text-blue-400 mb-3 font-medium">
           <span className="animate-spin">⟳</span> Uploading…
         </div>
       )}
       {status === 'success' && (
-        <p className="text-xs text-emerald-400 mb-2">✓ {message}</p>
+        <p className="text-xs text-emerald-400 mb-3 font-medium">✓ {message}</p>
       )}
       {status === 'error' && (
-        <p className="text-xs text-red-400 mb-2">✗ {message}</p>
+        <p className="text-xs text-red-400 mb-3 font-medium">✗ {message}</p>
       )}
 
       <button
         onClick={() => inputRef.current?.click()}
         disabled={status === 'uploading'}
-        className={`w-full py-2 rounded-md border text-sm transition-colors
+        className={`w-full py-2.5 rounded-lg border text-sm font-medium transition-all duration-200
           ${status === 'uploading'
-            ? 'border-[#2a3852] text-slate-600 cursor-not-allowed'
-            : 'border-[#2a3852] text-slate-400 hover:border-blue-500/50 hover:text-slate-200 hover:bg-[#111724]'
+            ? 'border-[#2a3852] text-slate-600 bg-[#111724]/50 cursor-not-allowed'
+            : 'border-[#2a3852] bg-[#111724]/50 text-slate-300 hover:border-blue-500/50 hover:text-white hover:bg-blue-500/10'
           }`}
       >
-        {status === 'success' ? 'Replace File' : 'Upload File'}
+        {status === 'success' ? 'Replace File' : 'Upload GeoJSON'}
       </button>
-      <p className="text-[10px] text-slate-700 mt-1.5 text-center">GeoJSON — drag & drop or click</p>
+      <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-3 text-center opacity-70">Drag & drop or click</p>
 
       <input
         ref={inputRef}

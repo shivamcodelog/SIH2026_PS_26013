@@ -22,47 +22,15 @@ import {
   DEFAULT_BASEMAP,
   LAYER_STYLES,
 } from './mapConfig';
-import {
-  CADASTRAL_DATASET,
-  MUNICIPAL_DATASET,
-  DRONE_BUILDING_DATASET,
-  HARMONIZATION_PAIRS,
-} from './mockGeoData';
 
 /**
  * Build a unified FeatureCollection from real API results.
- * Falls back to mock harmonization pair data if no real data is available.
  */
 function buildUnifiedFeatures(realMapData) {
   if (realMapData && realMapData.features && realMapData.features.length > 0) {
     return realMapData;
   }
-  // Derive a synthetic unified layer from the mock harmonization pairs
-  const features = HARMONIZATION_PAIRS.map((pair) => {
-    const cadFeature = CADASTRAL_DATASET.features.find(f => f.id === pair.cadastral_id);
-    if (!cadFeature) return null;
-    const hasConflicts = pair.flags.length > 0;
-    const isAuto = pair.status === 'AUTO_MATCHED';
-    const status = isAuto ? 'AUTO_VERIFIED' : hasConflicts ? 'REQUIRES_REVIEW' : 'REQUIRES_REVIEW';
-    return {
-      type: 'Feature',
-      id: pair.pair_id,
-      properties: {
-        parcel_id: pair.cadastral_id,
-        owner_name: pair.cadastral_record.owner,
-        area: parseInt(pair.cadastral_record.area.replace(/[^0-9]/g, ''), 10),
-        building_id: pair.building_ids[0] || null,
-        confidence: pair.confidence_score,
-        status,
-        sources: [pair.cadastral_id, pair.municipal_id, ...pair.building_ids],
-        conflicts: pair.flags.map(f => ({ type: f.type, severity: 'MEDIUM', description: f.detail })),
-        pair_id: pair.pair_id,
-      },
-      geometry: cadFeature.geometry,
-    };
-  }).filter(Boolean);
-
-  return { type: 'FeatureCollection', features };
+  return { type: 'FeatureCollection', features: [] };
 }
 
 export default function WebGISMap({
@@ -211,14 +179,14 @@ export default function WebGISMap({
     }
 
     // ── 2. Cadastral (blue source boundaries) ─────────────────────────────────
-    if (activeLayers.cadastral && !activeLayers.conflictsOnly) {
+    if (activeLayers.cadastral && !activeLayers.conflictsOnly && realMapData?.cadastral) {
       const s = LAYER_STYLES.cadastral;
-      const cadLayer = L.geoJSON(CADASTRAL_DATASET, {
+      const cadLayer = L.geoJSON(realMapData.cadastral, {
         pane: 'sourceOverlayPane',
         style: () => s,
         onEachFeature: (f, lyr) => {
           lyr.bindTooltip(
-            `<b>Cadastral: ${f.properties.parcel_id}</b><br/>Owner: ${f.properties.owner_name}<br/>Area: ${f.properties.recorded_area} m²`,
+            `<b>Cadastral: ${f.properties?.parcel_id || f.id}</b><br/>Owner: ${f.properties?.owner_name || '—'}<br/>Area: ${f.properties?.recorded_area || f.properties?.area || '—'} m²`,
             { sticky: true, className: 'leaflet-tooltip-gis' }
           );
           // Clicking cadastral selects the matching unified feature
@@ -236,14 +204,14 @@ export default function WebGISMap({
     }
 
     // ── 3. Municipal (amber dashed source boundaries) ─────────────────────────
-    if (activeLayers.municipal && !activeLayers.conflictsOnly) {
+    if (activeLayers.municipal && !activeLayers.conflictsOnly && realMapData?.municipal) {
       const s = LAYER_STYLES.municipal;
-      const munLayer = L.geoJSON(MUNICIPAL_DATASET, {
+      const munLayer = L.geoJSON(realMapData.municipal, {
         pane: 'sourceOverlayPane',
         style: () => s,
         onEachFeature: (f, lyr) => {
           lyr.bindTooltip(
-            `<b>Municipal: ${f.properties.property_id}</b><br/>Holder: ${f.properties.holder_name}<br/>Area: ${f.properties.plot_area} m²`,
+            `<b>Municipal: ${f.properties?.property_id || f.id}</b><br/>Holder: ${f.properties?.holder_name || '—'}<br/>Area: ${f.properties?.plot_area || f.properties?.area || '—'} m²`,
             { sticky: true, className: 'leaflet-tooltip-gis' }
           );
         },
@@ -252,14 +220,14 @@ export default function WebGISMap({
     }
 
     // ── 4. Drone Building Footprints (cyan filled) ────────────────────────────
-    if (activeLayers.drone && !activeLayers.conflictsOnly) {
+    if (activeLayers.drone && !activeLayers.conflictsOnly && realMapData?.drone) {
       const s = LAYER_STYLES.drone;
-      const droneLayer = L.geoJSON(DRONE_BUILDING_DATASET, {
+      const droneLayer = L.geoJSON(realMapData.drone, {
         pane: 'sourceOverlayPane',
         style: () => s,
         onEachFeature: (f, lyr) => {
           lyr.bindTooltip(
-            `<b>Building: ${f.properties.building_id}</b><br/>Height: ${f.properties.height_meters}m (${f.properties.floors} fl)<br/>Footprint: ${f.properties.footprint_area} m²`,
+            `<b>Building: ${f.properties?.building_id || f.id}</b><br/>Height: ${f.properties?.height_meters || '—'}m (${f.properties?.floors || '—'} fl)<br/>Footprint: ${f.properties?.footprint_area || f.properties?.area || '—'} m²`,
             { sticky: true, className: 'leaflet-tooltip-gis' }
           );
         },

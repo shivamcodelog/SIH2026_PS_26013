@@ -10,17 +10,17 @@ import api from '../api/client.js';
 
 function MetricCard({ label, value, sub, accent }) {
   const colors = {
-    blue: 'border-blue-500/40 text-blue-400',
-    green: 'border-emerald-500/40 text-emerald-400',
-    amber: 'border-amber-500/40 text-amber-400',
-    red: 'border-red-500/40 text-red-400',
-    slate: 'border-slate-600/40 text-slate-300',
+    blue: 'border-blue-500/30 bg-blue-950/10 text-blue-400',
+    green: 'border-emerald-500/30 bg-emerald-950/10 text-emerald-400',
+    amber: 'border-amber-500/30 bg-amber-950/10 text-amber-400',
+    red: 'border-red-500/30 bg-red-950/10 text-red-400',
+    slate: 'border-slate-700/40 bg-slate-800/10 text-slate-300',
   };
   return (
-    <div className={`bg-[#0d121c] border rounded-lg p-5 flex flex-col gap-1 border-l-2 ${colors[accent] || colors.slate}`}>
-      <p className="text-xs text-slate-500 uppercase tracking-widest">{label}</p>
-      <p className={`text-3xl font-bold tabular-nums ${colors[accent]?.split(' ')[1] || 'text-slate-200'}`}>{value}</p>
-      {sub && <p className="text-xs text-slate-600 mt-0.5">{sub}</p>}
+    <div className={`backdrop-blur-md border rounded-xl p-5 flex flex-col gap-1 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5 ${colors[accent] || colors.slate}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-80">{label}</p>
+      <p className={`text-4xl font-bold tabular-nums tracking-tight ${colors[accent]?.split(' ')[2] || 'text-slate-200'}`}>{value}</p>
+      {sub && <p className="text-xs opacity-70 mt-1 font-medium">{sub}</p>}
     </div>
   );
 }
@@ -29,18 +29,21 @@ function ProjectCard({ project, onSelect, isActive }) {
   return (
     <button
       onClick={() => onSelect(project.id)}
-      className={`w-full text-left bg-[#0d121c] border rounded-lg p-4 transition-all hover:border-blue-500/50 hover:bg-[#111724]
-        ${isActive ? 'border-blue-500/60 ring-1 ring-blue-500/20' : 'border-[#1c2638]'}`}
+      className={`w-full text-left backdrop-blur-md rounded-xl p-5 transition-all duration-300 ease-out 
+        hover:-translate-y-1 hover:shadow-xl hover:bg-[#111724]/90
+        ${isActive 
+          ? 'bg-[#111724] border-2 border-blue-500/50 shadow-[0_0_20px_rgba(37,99,235,0.15)]' 
+          : 'bg-[#0d121c]/80 border border-[#1c2638]'}`}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-slate-200 truncate">{project.name}</span>
-        {isActive && <span className="text-[10px] px-2 py-0.5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30">Active</span>}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-base font-semibold text-slate-100 truncate">{project.name}</span>
+        {isActive && <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/40 animate-pulse">Active</span>}
       </div>
-      {project.description && <p className="text-xs text-slate-500 mb-2 truncate">{project.description}</p>}
-      <div className="flex gap-4 text-xs text-slate-600">
-        <span>{project.datasets_count ?? 0} datasets</span>
-        <span>{project.matches_count ?? 0} matches</span>
-        <span>{project.conflicts_count ?? 0} conflicts</span>
+      {project.description && <p className="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed">{project.description}</p>}
+      <div className="flex gap-4 text-xs font-mono text-slate-500 pt-3 border-t border-[#1c2638]/50">
+        <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400/60"></span>{project.datasets_count ?? 0} Datasets</span>
+        <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60"></span>{project.matches_count ?? 0} Matches</span>
+        <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-red-400/60"></span>{project.conflicts_count ?? 0} Conflicts</span>
       </div>
     </button>
   );
