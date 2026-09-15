@@ -8,7 +8,11 @@ import {
   processProject,
   getResults,
   getConflicts,
-  getMap
+  getMap,
+  exportGeoJSON,
+  exportCSV,
+  explainConflict,
+  suggestMapping
 } from '../controllers/projectController.js';
 import { upload } from '../middleware/upload.js';
 
@@ -30,5 +34,13 @@ router.post('/projects/:id/process', processProject);
 router.get('/projects/:id/results', getResults);
 router.get('/projects/:id/conflicts', getConflicts);
 router.get('/projects/:id/map', getMap);
+
+// Data Export
+router.get('/projects/:id/export/geojson', exportGeoJSON);
+router.get('/projects/:id/export/csv', exportCSV);
+
+// AI Assistance
+router.post('/ai/explain-conflict', explainConflict);
+router.post('/ai/suggest-mapping', suggestMapping);
 
 export default router;

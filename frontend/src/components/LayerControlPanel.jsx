@@ -5,7 +5,8 @@ export default function LayerControlPanel({
   onSelectPair,
   features = [],
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  realMapData
 }) {
   const toggleLayer = (key) => {
     setActiveLayers(prev => ({ ...prev, [key]: !prev[key] }));
@@ -178,15 +179,14 @@ export default function LayerControlPanel({
           </div>
         </section>
 
-        {/* Entity Matches & Review Queue List */}
         <section className="space-y-2">
           <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-wider text-slate-500">
-            <span>Processed Records ({features.length})</span>
+            <span>Processed Records ({features.length || realMapData?.features?.length || 0})</span>
             <span className="text-slate-400">IoU Score</span>
           </div>
 
           <div className="space-y-1.5">
-            {features.map((feature) => {
+            {(features.length ? features : (realMapData?.features || [])).map((feature) => {
               const properties = feature.properties || {};
               const isSelected = selectedPairId === properties.parcel_id;
               const isVerified = properties.status === 'AUTO_VERIFIED' || properties.status === 'HUMAN_VERIFIED';
@@ -218,10 +218,15 @@ export default function LayerControlPanel({
                   <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
                     <span className="truncate max-w-35">{properties.owner_name || 'Unknown owner'}</span>
                     <span className="text-slate-500">⇄ {properties.source_record_b || 'No municipal match'}</span>
-                  </div>
+      </div>
                 </div>
               );
             })}
+            {!(features.length || realMapData?.features?.length) && (
+              <div className="p-2 text-center text-slate-500 text-[10px] border border-[#1c2638] rounded border-dashed">
+                No records found.
+              </div>
+            )}
           </div>
         </section>
 

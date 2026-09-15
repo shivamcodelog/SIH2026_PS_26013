@@ -103,36 +103,55 @@ export default function RecordsPage() {
         </div>
 
         {metrics && (
-          <div className="flex items-center gap-3 text-xs">
-            <span className="px-2.5 py-1 rounded bg-[#0d121c] border border-[#1c2638] text-slate-300">
-              Total: <strong className="text-white">{metrics.matchedCount || records.length}</strong>
-            </span>
-            <span className="px-2.5 py-1 rounded bg-emerald-950/30 border border-emerald-500/30 text-emerald-400">
-              Verified: <strong>{metrics.autoVerifiedCount + (metrics.humanVerifiedCount || 0)}</strong>
-            </span>
-            <span className="px-2.5 py-1 rounded bg-amber-950/30 border border-amber-500/30 text-amber-400">
-              Review: <strong>{metrics.requiresReviewCount}</strong>
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-3 text-xs">
+              <span className="px-2.5 py-1 rounded bg-[#0d121c] border border-[#1c2638] text-slate-300">
+                Total: <strong className="text-white">{metrics.matchedCount || records.length}</strong>
+              </span>
+              <span className="px-2.5 py-1 rounded bg-emerald-950/30 border border-emerald-500/30 text-emerald-400">
+                Verified: <strong>{metrics.autoVerifiedCount + (metrics.humanVerifiedCount || 0)}</strong>
+              </span>
+              <span className="px-2.5 py-1 rounded bg-amber-950/30 border border-amber-500/30 text-amber-400">
+                Review: <strong>{metrics.requiresReviewCount}</strong>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 border-l border-[#1c2638] pl-4">
+              <button
+                onClick={() => api.downloadGeoJSON(activeProject.id).catch(err => alert(err.message))}
+                className="px-3 py-1.5 bg-[#111724]/80 hover:bg-[#1a2233] border border-[#2a3852] hover:border-emerald-500/50 text-slate-300 hover:text-emerald-400 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1.5 shadow-sm"
+                title="Download Unified GeoJSON"
+              >
+                <span>⤓</span> GeoJSON
+              </button>
+              <button
+                onClick={() => api.downloadCSV(activeProject.id).catch(err => alert(err.message))}
+                className="px-3 py-1.5 bg-[#111724]/80 hover:bg-[#1a2233] border border-[#2a3852] hover:border-blue-500/50 text-slate-300 hover:text-blue-400 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1.5 shadow-sm"
+                title="Download Results as CSV"
+              >
+                <span>⤓</span> CSV
+              </button>
+            </div>
           </div>
         )}
       </div>
 
       {/* Filter Controls (§50) */}
-      <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-3.5 flex flex-wrap items-center gap-3 text-xs">
+      <div className="bg-[#0d121c]/80 backdrop-blur-md border border-[#1c2638] rounded-xl p-4 flex flex-wrap items-center gap-4 text-xs shadow-sm">
         {/* Search input */}
-        <div className="relative flex-1 min-w-50">
-          <span className="absolute left-3 top-2.5 text-slate-500">🔍</span>
+        <div className="relative flex-1 min-w-[250px]">
+          <span className="absolute left-3.5 top-2.5 text-slate-500">🔍</span>
           <input
             type="text"
             placeholder="Search parcel, property, owner, or building ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-[#111724] border border-[#2a3852] rounded text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-[#111724]/70 border border-[#2a3852] rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner"
           />
         </div>
 
         {/* Status Filter Buttons */}
-        <div className="flex items-center gap-1 bg-[#111724] p-0.5 rounded border border-[#1c2638]">
+        <div className="flex items-center gap-1 bg-[#111724]/80 p-1 rounded-lg border border-[#1c2638] shadow-inner">
           {[
             { id: 'ALL', label: 'All' },
             { id: 'VERIFIED', label: 'Verified' },
@@ -143,10 +162,10 @@ export default function RecordsPage() {
             <button
               key={btn.id}
               onClick={() => setStatusFilter(btn.id)}
-              className={`px-3 py-1 rounded font-medium transition-colors ${
+              className={`px-3.5 py-1.5 rounded-md font-medium transition-all duration-200 ${
                 statusFilter === btn.id
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)]'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a2233]'
               }`}
             >
               {btn.label}
@@ -155,12 +174,13 @@ export default function RecordsPage() {
         </div>
 
         {/* Confidence Filter Dropdown */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-slate-500 font-medium">Confidence:</span>
+        <div className="flex items-center gap-2.5 ml-auto">
+          <span className="text-slate-500 font-medium uppercase tracking-wider text-[10px]">Confidence:</span>
           <select
             value={confidenceFilter}
             onChange={(e) => setConfidenceFilter(e.target.value)}
-            className="bg-[#111724] border border-[#2a3852] rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-blue-500"
+            className="bg-[#111724]/70 border border-[#2a3852] rounded-lg px-3 py-1.5 text-slate-200 font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 cursor-pointer shadow-inner appearance-none pr-8 relative"
+            style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1em' }}
           >
             <option value="ALL">All Scores</option>
             <option value="HIGH">&gt; 95% High Confidence</option>
@@ -177,6 +197,14 @@ export default function RecordsPage() {
         ) : loading ? (
           <div className="p-12 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
             <span className="animate-spin">⟳</span> Loading harmonized records...
+          </div>
+        ) : error ? (
+          <div className="p-12 flex flex-col items-center justify-center text-center">
+            <span className="text-3xl text-red-500 mb-3">⚠</span>
+            <h3 className="text-sm font-semibold text-red-400 mb-1">{error}</h3>
+            <p className="text-xs text-slate-500 max-w-md">
+              Could not retrieve records from the backend database. Ensure the Node server and PostgreSQL are running.
+            </p>
           </div>
         ) : filteredRecords.length === 0 ? (
           <div className="p-12 text-center text-slate-500 text-xs">

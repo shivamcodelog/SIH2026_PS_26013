@@ -56,6 +56,26 @@ export default function ReviewPage() {
     return records.find((r) => r.match_id === selectedRecordId) || records[0] || null;
   }, [records, selectedRecordId]);
 
+  const [aiExplanation, setAiExplanation] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (!activeRecord) {
+      setAiExplanation('');
+      return;
+    }
+    setAiLoading(true);
+    api.getConflictExplanation(activeRecord)
+      .then(res => {
+        setAiExplanation(res.data?.explanation || res.explanation || 'Explanation unavailable.');
+      })
+      .catch(err => {
+        console.error('AI Error:', err);
+        setAiExplanation('Failed to fetch AI explanation.');
+      })
+      .finally(() => setAiLoading(false));
+  }, [activeRecord]);
+
   // Handle adjudication decision submission
   const handleDecision = async (decisionType) => {
     if (!activeRecord) return;
@@ -147,6 +167,14 @@ export default function ReviewPage() {
         <div className="p-16 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
           <span className="animate-spin">⟳</span> Loading review queue...
         </div>
+      ) : error ? (
+        <div className="bg-[#0d121c] border border-red-500/50 rounded-lg p-12 flex flex-col items-center justify-center text-center">
+          <span className="text-3xl text-red-500 mb-3">⚠</span>
+          <h3 className="text-sm font-semibold text-red-400 mb-1">{error}</h3>
+          <p className="text-xs text-slate-500 max-w-md">
+            Could not retrieve review queue from the backend database. Ensure the Node server and PostgreSQL are running.
+          </p>
+        </div>
       ) : records.length === 0 ? (
         <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-12 text-center space-y-3">
           <span className="text-3xl text-emerald-400">✓</span>
@@ -223,23 +251,23 @@ export default function ReviewPage() {
           {/* Right Columns: Comparison & Decision Panel (§11, §31) */}
           <div className="md:col-span-2 space-y-5">
             {activeRecord && (
-              <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-5 space-y-5">
+              <div className="bg-[#0d121c]/90 backdrop-blur-md border border-[#1c2638] rounded-xl p-6 space-y-5 shadow-lg">
                 {/* Header of Active Record */}
-                <div className="flex items-center justify-between border-b border-[#1c2638] pb-3">
+                <div className="flex items-center justify-between border-b border-[#1c2638] pb-4">
                   <div>
                     <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                      <span>Comparison Dossier:</span>
-                      <span className="text-blue-400 font-mono text-base">{activeRecord.parcel_id}</span>
+                      <span className="opacity-70">Comparison Dossier:</span>
+                      <span className="text-blue-400 font-mono text-lg bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">{activeRecord.parcel_id}</span>
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-1">
                       Cross-source comparison between Cadastral Survey and Municipal Records
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-500 uppercase">Composite Score</span>
+                  <div className="text-right flex flex-col items-end">
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-0.5">Composite Score</span>
                     <p
-                      className={`text-lg font-bold font-mono ${
-                        activeRecord.confidence >= 70 ? 'text-amber-400' : 'text-red-400'
+                      className={`text-2xl font-bold font-mono px-3 py-1 rounded-md border ${
+                        activeRecord.confidence >= 70 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-red-400 bg-red-500/10 border-red-500/30'
                       }`}
                     >
                       {activeRecord.confidence}%
@@ -248,13 +276,13 @@ export default function ReviewPage() {
                 </div>
 
                 {/* Side-by-Side Source Comparison Table (§31) */}
-                <div className="border border-[#1c2638] rounded-lg overflow-hidden">
+                <div className="border border-[#1c2638] rounded-lg overflow-hidden shadow-inner bg-[#090d14]/50">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="bg-[#111724] border-b border-[#1c2638] text-slate-400 font-semibold uppercase">
-                        <th className="px-4 py-2 text-left w-1/4">Attribute</th>
-                        <th className="px-4 py-2 text-left w-3/8 text-blue-400">Cadastral Record</th>
-                        <th className="px-4 py-2 text-left w-3/8 text-emerald-400">Municipal Record</th>
+                      <tr className="bg-[#111724]/80 border-b border-[#1c2638] text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
+                        <th className="px-4 py-3 text-left w-1/4 border-r border-[#1c2638]/50">Attribute</th>
+                        <th className="px-4 py-3 text-left w-3/8 text-blue-400 border-r border-[#1c2638]/50">Cadastral Record</th>
+                        <th className="px-4 py-3 text-left w-3/8 text-emerald-400">Municipal Record</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#1c2638] font-mono">
@@ -286,6 +314,23 @@ export default function ReviewPage() {
                       </tr>
                     </tbody>
                   </table>
+                </div>
+
+                {/* AI Conflict Explanation (Mission 16) */}
+                <div className="bg-[#111724]/60 border border-blue-900/30 rounded-lg p-4 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500/50"></div>
+                  <h3 className="text-xs uppercase tracking-widest text-blue-400 font-semibold mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                    AI Assistant Explanation
+                  </h3>
+                  {aiLoading ? (
+                    <p className="text-sm text-slate-500 italic animate-pulse">Analyzing conflicts and compiling explanation...</p>
+                  ) : (
+                    <p className="text-sm text-slate-300 leading-relaxed font-serif tracking-wide">{aiExplanation || 'No explanation available.'}</p>
+                  )}
+                  <p className="text-[10px] text-slate-500 mt-2 uppercase tracking-wide opacity-70">
+                    * AI suggestions are non-authoritative. Final decision requires human verification.
+                  </p>
                 </div>
 
                 {/* Score Breakdown Bars (§10, §31) */}

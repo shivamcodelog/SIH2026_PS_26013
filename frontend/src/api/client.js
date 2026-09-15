@@ -99,11 +99,48 @@ export const api = {
   },
 
   // ── Map ────────────────────────────────────────────────────────────────────
-  getMap: (projectId) => request(`/projects/${projectId}/map`),
+  getMap: async (projectId) => {
+    return request(`/projects/${projectId}/map`);
+  },
+
+  downloadGeoJSON: async (projectId) => {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/export/geojson`);
+    if (!response.ok) throw new Error('Failed to download GeoJSON');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project_${projectId}_unified.geojson`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  downloadCSV: async (projectId) => {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/export/csv`);
+    if (!response.ok) throw new Error('Failed to download CSV');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project_${projectId}_results.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
 
   // ── Reviews ────────────────────────────────────────────────────────────────
   postDecision: (matchId, body) =>
     request(`/reviews/${matchId}/decision`, { method: 'POST', body: JSON.stringify(body) }),
+
+  // ── AI Assistance ──────────────────────────────────────────────────────────
+  getConflictExplanation: (recordData) =>
+    request(`/ai/explain-conflict`, { method: 'POST', body: JSON.stringify({ recordData }) }),
+
+  getSchemaMappingSuggestions: (headers) =>
+    request(`/ai/suggest-mapping`, { method: 'POST', body: JSON.stringify({ headers }) }),
 };
 
 export default api;

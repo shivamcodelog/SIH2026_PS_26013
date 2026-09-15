@@ -123,7 +123,6 @@ export default function WebGISMap({
     const unified = buildUnifiedFeatures(realMapData);
     const cadastralData = buildSourceFeatures(realMapData, 'cadastral');
     const municipalData = buildSourceFeatures(realMapData, 'municipal');
-    const buildingData = { type: 'FeatureCollection', features: [] };
     let fittedBounds = false;
 
     // ── 1. Unified Parcels ─────────────────────────────────────────────────────
@@ -199,14 +198,14 @@ export default function WebGISMap({
     }
 
     // ── 2. Cadastral (blue source boundaries) ─────────────────────────────────
-    if (activeLayers.cadastral && !activeLayers.conflictsOnly) {
+    if (activeLayers.cadastral && !activeLayers.conflictsOnly && realMapData?.cadastral) {
       const s = LAYER_STYLES.cadastral;
       const cadLayer = L.geoJSON(cadastralData, {
         pane: 'sourceOverlayPane',
         style: () => s,
         onEachFeature: (f, lyr) => {
           lyr.bindTooltip(
-            `<b>Cadastral: ${f.properties.parcel_id}</b><br/>Owner: ${f.properties.owner_name}<br/>Area: ${f.properties.recorded_area} m²`,
+            `<b>Cadastral: ${f.properties?.parcel_id || f.id}</b><br/>Owner: ${f.properties?.owner_name || '—'}<br/>Area: ${f.properties?.recorded_area || f.properties?.area || '—'} m²`,
             { sticky: true, className: 'leaflet-tooltip-gis' }
           );
           // Clicking cadastral selects the matching unified feature
@@ -224,14 +223,14 @@ export default function WebGISMap({
     }
 
     // ── 3. Municipal (amber dashed source boundaries) ─────────────────────────
-    if (activeLayers.municipal && !activeLayers.conflictsOnly) {
+    if (activeLayers.municipal && !activeLayers.conflictsOnly && realMapData?.municipal) {
       const s = LAYER_STYLES.municipal;
       const munLayer = L.geoJSON(municipalData, {
         pane: 'sourceOverlayPane',
         style: () => s,
         onEachFeature: (f, lyr) => {
           lyr.bindTooltip(
-            `<b>Municipal: ${f.properties.parcel_id}</b><br/>Holder: ${f.properties.owner_name || '—'}<br/>Area: ${f.properties.recorded_area ?? '—'} m²`,
+            `<b>Municipal: ${f.properties?.parcel_id || f.properties?.property_id || f.id}</b><br/>Holder: ${f.properties?.owner_name || f.properties?.holder_name || '—'}<br/>Area: ${f.properties?.recorded_area ?? f.properties?.plot_area ?? f.properties?.area ?? '—'} m²`,
             { sticky: true, className: 'leaflet-tooltip-gis' }
           );
         },
@@ -240,14 +239,14 @@ export default function WebGISMap({
     }
 
     // ── 4. Drone Building Footprints (cyan filled) ────────────────────────────
-    if (activeLayers.drone && !activeLayers.conflictsOnly) {
+    if (activeLayers.drone && !activeLayers.conflictsOnly && realMapData?.drone) {
       const s = LAYER_STYLES.drone;
-      const droneLayer = L.geoJSON(buildingData, {
+      const droneLayer = L.geoJSON(realMapData.drone, {
         pane: 'sourceOverlayPane',
         style: () => s,
         onEachFeature: (f, lyr) => {
           lyr.bindTooltip(
-            `<b>Building: ${f.properties.building_id}</b><br/>Height: ${f.properties.height_meters}m (${f.properties.floors} fl)<br/>Footprint: ${f.properties.footprint_area} m²`,
+            `<b>Building: ${f.properties?.building_id || f.id}</b><br/>Height: ${f.properties?.height_meters || '—'}m (${f.properties?.floors || '—'} fl)<br/>Footprint: ${f.properties?.footprint_area || f.properties?.area || '—'} m²`,
             { sticky: true, className: 'leaflet-tooltip-gis' }
           );
         },
