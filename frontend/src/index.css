@@ -119,3 +119,26 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #2a3852;
 }
+
+/* GIS Tooltip dark-mode styling */
+.leaflet-tooltip-gis {
+  background: rgba(9, 13, 20, 0.95) !important;
+  border: 1px solid #2a3852 !important;
+  border-radius: 5px !important;
+  color: #e2e8f0 !important;
+  font-size: 11px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  line-height: 1.5 !important;
+  padding: 5px 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6) !important;
+  pointer-events: none !important;
+}
+
+.leaflet-tooltip-gis::before {
+  border-top-color: #2a3852 !important;
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 4px #ef4444aa; }
+  50%       { box-shadow: 0 0 10px #ef4444ff; }
+}
