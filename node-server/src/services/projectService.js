@@ -482,8 +482,9 @@ export class ProjectService {
    * Get GeoJSON FeatureCollection for Leaflet interactive map (§14)
    */
   async getProjectMap(projectId) {
+    // Fetch matches with full conflict details (type + severity + description)
     const sql = `
-      SELECT 
+      SELECT
         m.id as match_id,
         ra.parcel_id,
         COALESCE(ra.owner_name, rb.owner_name) as owner_name,
@@ -496,8 +497,13 @@ export class ProjectService {
         ra.geometry as geometry_str,
         COALESCE(
           json_agg(
-            c.type
-          ) FILTER (WHERE c.id IS NOT NULL), '[]'
+            json_build_object(
+              'type', c.type,
+              'severity', c.severity,
+              'description', c.description
+            )
+          ) FILTER (WHERE c.id IS NOT NULL),
+          '[]'::json
         ) as conflicts
       FROM matches m
       JOIN records ra ON m.source_record_a = ra.id
@@ -517,6 +523,11 @@ export class ProjectService {
         geom = null;
       }
 
+      // Build a readable sources array from actual record IDs
+      const sources = [];
+      if (row.source_record_a) sources.push(row.source_record_a);
+      if (row.source_record_b) sources.push(row.source_record_b);
+
       return {
         type: 'Feature',
         id: row.match_id,
@@ -529,7 +540,7 @@ export class ProjectService {
           building_id: row.building_id,
           confidence: Number(row.confidence),
           status: row.status,
-          sources: row.source_record_b ? ['cadastral', 'municipal'] : ['cadastral'],
+          sources,
           conflicts: row.conflicts || [],
           source_record_a: row.source_record_a,
           source_record_b: row.source_record_b

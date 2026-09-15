@@ -2,13 +2,14 @@
  * ProjectContext — lightweight global state for the active project.
  * Components read activeProject / setActiveProject via useProject().
  */
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import api from '../api/client.js';
 
 const ProjectContext = createContext(null);
 
 export function ProjectProvider({ children }) {
   const [activeProject, setActiveProject] = useState(null);
+  const [selectedMatchId, setSelectedMatchId] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -53,6 +54,7 @@ export function ProjectProvider({ children }) {
   return (
     <ProjectContext.Provider value={{
       activeProject, setActiveProject,
+      selectedMatchId, setSelectedMatchId,
       projects, setProjects,
       loading, error,
       loadProjects, selectProject, refreshActiveProject,
