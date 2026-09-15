@@ -1,11 +1,9 @@
-import React from 'react';
-import { HARMONIZATION_PAIRS } from '../map/mockGeoData';
-
 export default function LayerControlPanel({
   activeLayers,
   setActiveLayers,
   selectedPairId,
   onSelectPair,
+  features = [],
   isCollapsed,
   onToggleCollapse
 }) {
@@ -23,7 +21,7 @@ export default function LayerControlPanel({
 
   if (isCollapsed) {
     return (
-      <aside className="w-10 border-r border-[#1c2638] bg-[#0d121c] flex flex-col items-center py-3 select-none flex-shrink-0">
+      <aside className="w-10 border-r border-[#1c2638] bg-[#0d121c] flex flex-col items-center py-3 select-none shrink-0">
         <button
           onClick={onToggleCollapse}
           title="Expand Layer Panel"
@@ -41,7 +39,7 @@ export default function LayerControlPanel({
   }
 
   return (
-    <aside className="w-80 border-r border-[#1c2638] bg-[#0d121c] flex flex-col select-none flex-shrink-0 z-20 text-xs font-mono">
+    <aside className="w-80 border-r border-[#1c2638] bg-[#0d121c] flex flex-col select-none shrink-0 z-20 text-xs font-mono">
       {/* Dock Header */}
       <div className="h-9 px-3 border-b border-[#1c2638] flex items-center justify-between bg-[#090d14]">
         <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-slate-200 text-[11px]">
@@ -90,7 +88,7 @@ export default function LayerControlPanel({
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                   <span>State Land Records</span>
-                  <span className="text-blue-400">4 Parcels</span>
+                  <span className="text-blue-400">{features.length} Parcels</span>
                 </div>
               </div>
             </label>
@@ -114,7 +112,7 @@ export default function LayerControlPanel({
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                   <span>Tax Assessment Board</span>
-                  <span className="text-amber-400">3 Plots</span>
+                  <span className="text-amber-400">{features.length} Plots</span>
                 </div>
               </div>
             </label>
@@ -138,7 +136,7 @@ export default function LayerControlPanel({
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                   <span>UAV Photogrammetry</span>
-                  <span className="text-cyan-400">3 Structures</span>
+                  <span className="text-cyan-400">0 Structures</span>
                 </div>
               </div>
             </label>
@@ -183,20 +181,21 @@ export default function LayerControlPanel({
         {/* Entity Matches & Review Queue List */}
         <section className="space-y-2">
           <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-wider text-slate-500">
-            <span>Spatial Pairs ({HARMONIZATION_PAIRS.length})</span>
+            <span>Processed Records ({features.length})</span>
             <span className="text-slate-400">IoU Score</span>
           </div>
 
           <div className="space-y-1.5">
-            {HARMONIZATION_PAIRS.map((pair) => {
-              const isSelected = selectedPairId === pair.pair_id;
-              const isAuto = pair.status === 'AUTO_MATCHED';
-              const isConflict = pair.status === 'CONFLICT';
+            {features.map((feature) => {
+              const properties = feature.properties || {};
+              const isSelected = selectedPairId === properties.parcel_id;
+              const isVerified = properties.status === 'AUTO_VERIFIED' || properties.status === 'HUMAN_VERIFIED';
+              const isConflict = (properties.conflicts || []).length > 0;
 
               return (
                 <div
-                  key={pair.pair_id}
-                  onClick={() => onSelectPair(pair.pair_id)}
+                  key={feature.id || properties.parcel_id}
+                  onClick={() => onSelectPair(properties.parcel_id)}
                   className={`p-2 rounded border cursor-pointer transition-all ${
                     isSelected
                       ? 'bg-[#151d2d] border-blue-500 text-white shadow-lg'
@@ -204,21 +203,21 @@ export default function LayerControlPanel({
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-200">{pair.cadastral_id}</span>
+                    <span className="font-bold text-slate-200">{properties.parcel_id}</span>
                     <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                      isAuto
+                      isVerified
                         ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                         : isConflict
                         ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                         : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                     }`}>
-                      {pair.confidence_score}%
+                      {properties.confidence ?? '—'}%
                     </span>
                   </div>
 
                   <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                    <span className="truncate max-w-[140px]">{pair.cadastral_record.owner}</span>
-                    <span className="text-slate-500">⇄ {pair.municipal_id}</span>
+                    <span className="truncate max-w-35">{properties.owner_name || 'Unknown owner'}</span>
+                    <span className="text-slate-500">⇄ {properties.source_record_b || 'No municipal match'}</span>
                   </div>
                 </div>
               );
@@ -233,7 +232,7 @@ export default function LayerControlPanel({
             <span className="text-emerald-400">READY</span>
           </div>
           <p className="text-[10px] text-slate-500 leading-tight">
-            FastAPI Ingestion Engine auto-detects coordinate reference systems and calculates polygonal intersection-over-union.
+            Showing records returned by the Node API after FastAPI processing.
           </p>
         </section>
       </div>

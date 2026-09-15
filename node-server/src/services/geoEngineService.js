@@ -45,11 +45,19 @@ export class GeoEngineService {
     const blob = new Blob([fileBuffer], { type: 'application/geo+json' });
     formData.append('file', blob, filename);
 
-    const response = await fetch(`${this.baseUrl}/ingest`, {
-      method: 'POST',
-      body: formData,
-      signal: AbortSignal.timeout(30000)
-    });
+    let response;
+    try {
+      response = await fetch(`${this.baseUrl}/ingest`, {
+        method: 'POST',
+        body: formData,
+        signal: AbortSignal.timeout(30000)
+      });
+    } catch {
+      const error = new Error(`FastAPI unavailable at ${this.baseUrl}. Start geo-engine and try again.`);
+      error.status = 503;
+      error.code = 'FASTAPI_UNAVAILABLE';
+      throw error;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -84,11 +92,19 @@ export class GeoEngineService {
 
     const url = `${this.baseUrl}/unify${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
-      signal: AbortSignal.timeout(60000)
-    });
+    let response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        signal: AbortSignal.timeout(60000)
+      });
+    } catch {
+      const error = new Error(`FastAPI unavailable at ${this.baseUrl}. Start geo-engine and try again.`);
+      error.status = 503;
+      error.code = 'FASTAPI_UNAVAILABLE';
+      throw error;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

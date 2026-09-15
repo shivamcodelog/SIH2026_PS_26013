@@ -3,13 +3,13 @@
  * Adjudication interface for records requiring human verification.
  * Features side-by-side source comparison, component score breakdowns, and decision actions.
  */
-import React, { useState, useEffect, useMemo } from 'react';
+import { startTransition, useCallback, useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../lib/ProjectContext.jsx';
 import api from '../api/client.js';
 
 export default function ReviewPage() {
-  const { activeProject, refreshActiveProject } = useProject();
+  const { activeProject, selectedMatchId, setSelectedMatchId, refreshActiveProject } = useProject();
   const navigate = useNavigate();
 
   const [records, setRecords] = useState([]);
@@ -20,28 +20,37 @@ export default function ReviewPage() {
   const [reviewComment, setReviewComment] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
   const [actionError, setActionError] = useState('');
+  const [queueError, setQueueError] = useState('');
+  const [lastDecision, setLastDecision] = useState(null);
 
   // Fetch all records requiring review
-  const loadReviewQueue = async () => {
+  const loadReviewQueue = useCallback(async () => {
     if (!activeProject?.id) return;
     setLoading(true);
+    setQueueError('');
     try {
       const res = await api.getResults(activeProject.id, { status: 'REQUIRES_REVIEW' });
       const recs = res.records || res.data?.records || [];
       setRecords(recs);
-      if (recs.length > 0 && !selectedRecordId) {
-        setSelectedRecordId(recs[0].match_id);
+      if (recs.length > 0) {
+        const selected = recs.find((record) => (
+          record.parcel_id || record.match_id
+        ) === selectedMatchId);
+        setSelectedRecordId(selected?.match_id || recs[0].match_id);
+      } else {
+        setSelectedRecordId(null);
       }
     } catch (err) {
-      console.error('Failed to load review queue:', err);
+      setRecords([]);
+      setQueueError(err.message || 'Unable to load the review queue.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeProject, selectedMatchId]);
 
   useEffect(() => {
-    loadReviewQueue();
-  }, [activeProject]);
+    startTransition(() => loadReviewQueue());
+  }, [loadReviewQueue]);
 
   const activeRecord = useMemo(() => {
     return records.find((r) => r.match_id === selectedRecordId) || records[0] || null;
@@ -62,6 +71,8 @@ export default function ReviewPage() {
       });
 
       setActionSuccess(`Record ${activeRecord.parcel_id} adjudicated as ${res.matchStatus || decisionType}`);
+      setLastDecision(res.review || null);
+      setSelectedMatchId(activeRecord.parcel_id || activeRecord.match_id);
       setReviewComment('');
 
       // Refresh queue and project metrics
@@ -111,7 +122,15 @@ export default function ReviewPage() {
       {/* Notifications */}
       {actionSuccess && (
         <div className="p-3 bg-emerald-950/30 border border-emerald-500/40 rounded text-xs text-emerald-300 flex items-center justify-between">
-          <span>✓ {actionSuccess}</span>
+          <span>
+            ✓ {actionSuccess}
+            {lastDecision && (
+              <span className="block mt-1 text-[10px] text-emerald-400/80">
+                {lastDecision.reviewer} · {lastDecision.decision} · {lastDecision.created_at ? new Date(lastDecision.created_at).toLocaleString() : 'timestamp recorded'}
+                {lastDecision.comment ? ` · ${lastDecision.comment}` : ''}
+              </span>
+            )}
+          </span>
           <button onClick={() => setActionSuccess('')} className="text-emerald-400 hover:text-emerald-200">✕</button>
         </div>
       )}
@@ -122,14 +141,16 @@ export default function ReviewPage() {
         </div>
       )}
 
-      {loading ? (
+      {queueError ? (
+        <div className="p-12 text-center text-red-400 text-xs">Unable to load review queue: {queueError}</div>
+      ) : loading ? (
         <div className="p-16 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
           <span className="animate-spin">⟳</span> Loading review queue...
         </div>
       ) : records.length === 0 ? (
         <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-12 text-center space-y-3">
           <span className="text-3xl text-emerald-400">✓</span>
-          <h3 className="text-sm font-semibold text-slate-200">Zero Unresolved Discrepancies</h3>
+          <h3 className="text-sm font-semibold text-slate-200">No records require review</h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
             All land records in this project are either auto-verified by the matching engine or have been human-adjudicated.
           </p>
@@ -148,7 +169,7 @@ export default function ReviewPage() {
             <h2 className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
               Uncertain Cases ({records.length})
             </h2>
-            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-150 overflow-y-auto pr-1">
               {records.map((r) => {
                 const isSelected = activeRecord?.match_id === r.match_id;
                 const conf = Number(r.confidence || 0);
@@ -158,6 +179,7 @@ export default function ReviewPage() {
                     key={r.match_id}
                     onClick={() => {
                       setSelectedRecordId(r.match_id);
+                      setSelectedMatchId(r.parcel_id || r.match_id);
                       setActionSuccess('');
                       setActionError('');
                     }}
@@ -252,7 +274,7 @@ export default function ReviewPage() {
                         <td className="px-4 py-2.5 font-sans font-medium text-slate-500">Declared Area</td>
                         <td className="px-4 py-2.5 text-slate-200">{activeRecord.area ? `${activeRecord.area} m²` : '—'}</td>
                         <td className="px-4 py-2.5 text-slate-200">
-                          {activeRecord.area_b ? `${activeRecord.area_b} m²` : activeRecord.area ? `${activeRecord.area} m²` : '—'}
+                          {activeRecord.area_b != null ? `${activeRecord.area_b} m²` : '—'}
                         </td>
                       </tr>
                       <tr>
@@ -387,14 +409,14 @@ export default function ReviewPage() {
                       disabled={submitting}
                       className="flex-1 py-2 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50"
                     >
-                      {submitting ? 'Submitting...' : '✓ Resolve & Harmonize'}
+                      {submitting ? 'Submitting...' : 'Edit / Resolve'}
                     </button>
                     <button
                       onClick={() => handleDecision('ACCEPT')}
                       disabled={submitting}
                       className="flex-1 py-2 px-4 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50"
                     >
-                      Accept Cadastral
+                      Accept Match
                     </button>
                     <button
                       onClick={() => handleDecision('REJECT')}

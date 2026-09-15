@@ -3,7 +3,7 @@
  * Pulls real metrics from /api/projects/:id (§26).
  * Shows project selector when no active project.
  */
-import React, { useEffect, useState, useCallback } from 'react';
+import { startTransition, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../lib/ProjectContext.jsx';
 import api from '../api/client.js';
@@ -51,6 +51,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState(null);
   const [metricsLoading, setMetricsLoading] = useState(false);
+  const [metricsError, setMetricsError] = useState('');
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -59,11 +60,14 @@ export default function DashboardPage() {
   useEffect(() => { loadProjects(); }, [loadProjects]);
 
   useEffect(() => {
-    if (!activeProject?.id) { setMetrics(null); return; }
-    setMetricsLoading(true);
+    if (!activeProject?.id) { startTransition(() => setMetrics(null)); return; }
+    startTransition(() => {
+      setMetricsLoading(true);
+      setMetricsError('');
+    });
     api.getProject(activeProject.id)
       .then((r) => setMetrics(r.project?.metrics || r.data?.project?.metrics || null))
-      .catch(() => setMetrics(null))
+      .catch((error) => { setMetrics(null); setMetricsError(error.message); })
       .finally(() => setMetricsLoading(false));
   }, [activeProject]);
 
@@ -186,7 +190,13 @@ export default function DashboardPage() {
               />
             </div>
           ) : (
-            <p className="text-sm text-slate-600 mb-6">No processing results yet. Upload datasets and run processing.</p>
+            <div className="mb-6 space-y-1">
+              {metricsError ? (
+                <p className="text-sm text-red-400">Unable to load processing metrics: {metricsError}</p>
+              ) : (
+                <p className="text-sm text-slate-600">No processing results yet. Upload datasets and run processing.</p>
+              )}
+            </div>
           )}
 
           <div className="flex flex-wrap gap-2">

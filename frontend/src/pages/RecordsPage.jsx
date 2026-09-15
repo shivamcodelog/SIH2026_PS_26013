@@ -14,6 +14,7 @@ export default function RecordsPage() {
   const [records, setRecords] = useState([]);
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [confidenceFilter, setConfidenceFilter] = useState('ALL');
@@ -21,13 +22,16 @@ export default function RecordsPage() {
   useEffect(() => {
     if (!activeProject?.id) return;
     startTransition(() => setLoading(true));
+    startTransition(() => setError(''));
     api.getResults(activeProject.id)
       .then((res) => {
         setRecords(res.records || res.data?.records || []);
         setMetrics(res.metrics || res.data?.metrics || null);
       })
       .catch((err) => {
-        console.error('Failed to load records:', err);
+        setRecords([]);
+        setMetrics(null);
+        setError(err.message || 'Unable to load records.');
       })
       .finally(() => setLoading(false));
   }, [activeProject]);
@@ -168,7 +172,9 @@ export default function RecordsPage() {
 
       {/* Table Content */}
       <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg overflow-hidden">
-        {loading ? (
+        {error ? (
+          <div className="p-12 text-center text-red-400 text-xs">Unable to load records: {error}</div>
+        ) : loading ? (
           <div className="p-12 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
             <span className="animate-spin">⟳</span> Loading harmonized records...
           </div>
@@ -176,6 +182,8 @@ export default function RecordsPage() {
           <div className="p-12 text-center text-slate-500 text-xs">
             {records.length === 0
               ? 'No records processed yet. Go to the Processing page and run the engine.'
+              : statusFilter === 'CONFLICTS'
+              ? 'No conflicts found.'
               : 'No records match your active search and filter criteria.'}
           </div>
         ) : (

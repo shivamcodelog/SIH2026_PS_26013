@@ -3,7 +3,7 @@
  * Triggers the end-to-end harmonization engine via POST /api/projects/:id/process.
  * Displays pipeline stages, progress, configurable thresholds, and post-processing summary.
  */
-import React, { useState, useEffect } from 'react';
+import { startTransition, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../lib/ProjectContext.jsx';
 import api from '../api/client.js';
@@ -32,31 +32,31 @@ export default function ProcessingPage() {
   const [processingResult, setProcessingResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [datasets, setDatasets] = useState([]);
+  const [datasetError, setDatasetError] = useState('');
+  const [datasetsLoading, setDatasetsLoading] = useState(false);
 
   // Load project datasets to verify readiness
   useEffect(() => {
     if (!activeProject?.id) return;
+    startTransition(() => {
+      setDatasetsLoading(true);
+      setDatasetError('');
+    });
     api.getDatasets(activeProject.id)
       .then((res) => setDatasets(res.datasets || res.data?.datasets || []))
-      .catch(() => setDatasets([]));
+      .catch((error) => { setDatasets([]); setDatasetError(error.message); })
+      .finally(() => setDatasetsLoading(false));
   }, [activeProject]);
 
   const handleRunPipeline = async () => {
-    if (!activeProject?.id) return;
+    if (!activeProject?.id || !hasDatasets) {
+      setErrorMessage('Upload cadastral and municipal GeoJSON datasets before processing.');
+      return;
+    }
     setIsProcessing(true);
     setErrorMessage('');
     setProcessingResult(null);
     setCurrentStageIdx(0);
-
-    // Simulated visual step progression matching real backend tasks
-    const interval = setInterval(() => {
-      setCurrentStageIdx((prev) => {
-        if (prev < PIPELINE_STAGES.length - 1) {
-          return prev + 1;
-        }
-        return prev;
-      });
-    }, 180);
 
     try {
       const res = await api.processProject(activeProject.id, {
@@ -66,12 +66,10 @@ export default function ProcessingPage() {
         attribute_weight: parseFloat(attributeWeight),
       });
 
-      clearInterval(interval);
       setCurrentStageIdx(PIPELINE_STAGES.length);
       setProcessingResult(res);
       await refreshActiveProject();
     } catch (err) {
-      clearInterval(interval);
       setErrorMessage(err.message || 'Pipeline processing failed');
     } finally {
       setIsProcessing(false);
@@ -110,7 +108,7 @@ export default function ProcessingPage() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs px-2.5 py-1 rounded bg-[#0d121c] border border-[#1c2638] text-slate-400">
-            {datasets.length} Datasets Loaded
+            {datasetsLoading ? 'Checking datasets…' : `${datasets.length} Datasets Loaded`}
           </span>
         </div>
       </div>
@@ -201,11 +199,11 @@ export default function ProcessingPage() {
             </div>
 
             {/* Execute Button */}
-            <button
+              <button
               onClick={handleRunPipeline}
-              disabled={isProcessing}
+              disabled={isProcessing || !hasDatasets}
               className={`w-full py-2.5 px-4 rounded-md text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                isProcessing
+                isProcessing || !hasDatasets
                   ? 'bg-blue-600/40 text-blue-300 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/30'
               }`}
@@ -221,11 +219,12 @@ export default function ProcessingPage() {
               )}
             </button>
 
-            {!hasDatasets && (
+            {!hasDatasets && !datasetError && (
               <p className="text-[11px] text-amber-400/90 text-center">
-                Note: Synthetic sample survey records will be automatically used if datasets are not uploaded.
+                Upload cadastral and municipal GeoJSON datasets before processing.
               </p>
             )}
+            {datasetError && <p className="text-[11px] text-red-400 text-center">Unable to load datasets: {datasetError}</p>}
           </div>
         </div>
 

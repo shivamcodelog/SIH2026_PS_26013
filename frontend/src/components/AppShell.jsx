@@ -3,9 +3,10 @@
  * Navigation: Dashboard | Datasets | Processing | Unified Map | Records | Review
  * Matches the §48 layout spec exactly.
  */
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useProject } from '../lib/ProjectContext.jsx';
+import { checkNodeHealth } from '../api/client.js';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard',    icon: '⊞' },
@@ -26,9 +27,15 @@ function StatusDot({ connected }) {
 }
 
 export default function AppShell() {
-  const { activeProject, projects } = useProject();
+  const { activeProject } = useProject();
   const navigate = useNavigate();
-  const [apiOnline] = useState(true); // health is shown on dashboard
+  const [apiHealth, setApiHealth] = useState({ loading: true, connected: false });
+
+  useEffect(() => {
+    checkNodeHealth()
+      .then((health) => setApiHealth({ loading: false, connected: health.success === true, error: health.error }))
+      .catch((error) => setApiHealth({ loading: false, connected: false, error: error.message }));
+  }, []);
 
   return (
     <div className="w-screen h-screen flex flex-col bg-[#07090e] text-slate-200 overflow-hidden font-sans">
@@ -40,12 +47,12 @@ export default function AppShell() {
         {activeProject && (
           <>
             <span className="mx-2 text-[#2a3852]">›</span>
-            <span className="text-sm text-slate-400 truncate max-w-[240px]">{activeProject.name}</span>
+            <span className="text-sm text-slate-400 truncate max-w-60">{activeProject.name}</span>
           </>
         )}
         <div className="ml-auto flex items-center gap-4 text-xs text-slate-500">
-          <StatusDot connected={apiOnline} />
-          <span>API</span>
+          <StatusDot connected={apiHealth.connected} />
+          <span title={apiHealth.error || 'Node API connected'}>{apiHealth.loading ? 'API CHECKING' : apiHealth.connected ? 'API ONLINE' : 'API OFFLINE'}</span>
         </div>
       </header>
 

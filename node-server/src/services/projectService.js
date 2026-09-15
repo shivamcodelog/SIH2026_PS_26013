@@ -374,7 +374,9 @@ export class ProjectService {
         m.id as match_id,
         ra.parcel_id,
         COALESCE(ra.owner_name, rb.owner_name) as owner_name,
+        rb.owner_name as owner_name_b,
         COALESCE(ra.area, rb.area) as area,
+        rb.area as area_b,
         ra.normalized_attributes->>'building_id' as building_id,
         m.confidence,
         m.status,
@@ -495,6 +497,9 @@ export class ProjectService {
         ra.source_record_id as source_record_a,
         rb.source_record_id as source_record_b,
         ra.geometry as geometry_str,
+        rb.geometry as geometry_str_b,
+        rb.owner_name as owner_name_b,
+        rb.area as area_b,
         COALESCE(
           json_agg(
             json_build_object(
@@ -517,10 +522,13 @@ export class ProjectService {
 
     const features = res.rows.map(row => {
       let geom = null;
+      let geomB = null;
       try {
         geom = typeof row.geometry_str === 'string' ? JSON.parse(row.geometry_str) : row.geometry_str;
+        geomB = typeof row.geometry_str_b === 'string' ? JSON.parse(row.geometry_str_b) : row.geometry_str_b;
       } catch {
         geom = null;
+        geomB = null;
       }
 
       // Build a readable sources array from actual record IDs
@@ -543,7 +551,10 @@ export class ProjectService {
           sources,
           conflicts: row.conflicts || [],
           source_record_a: row.source_record_a,
-          source_record_b: row.source_record_b
+          source_record_b: row.source_record_b,
+          owner_name_b: row.owner_name_b,
+          area_b: row.area_b,
+          source_geometry_b: geomB
         }
       };
     });

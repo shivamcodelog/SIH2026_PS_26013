@@ -3,7 +3,7 @@
  * Shows uploaded datasets with name/source/CRS/record count/status (§49 Page 2).
  * Upload UI: one control per dataset type with real status/error/success states (§27).
  */
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { startTransition, useEffect, useState, useRef, useCallback } from 'react';
 import { useProject } from '../lib/ProjectContext.jsx';
 import api from '../api/client.js';
 
@@ -148,7 +148,7 @@ export default function DatasetsPage() {
     }
   }, [activeProject]);
 
-  useEffect(() => { loadDatasets(); }, [loadDatasets]);
+  useEffect(() => { startTransition(() => loadDatasets()); }, [loadDatasets]);
 
   if (!activeProject) {
     return (

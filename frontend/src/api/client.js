@@ -5,15 +5,35 @@
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+async function readResponseBody(res) {
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    try { return await res.json(); } catch { return null; }
+  }
+  const text = await res.text();
+  return text ? { message: text } : null;
+}
+
+function getErrorMessage(body, fallback) {
+  if (typeof body?.error === 'string') return body.error;
+  return body?.error?.message || body?.message || fallback;
+}
+
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-    ...options,
-  });
-  const body = await res.json();
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      ...options,
+    });
+  } catch {
+    const error = new Error('Node API unavailable. Start node-server and try again.');
+    error.code = 'NODE_UNAVAILABLE';
+    throw error;
+  }
+  const body = await readResponseBody(res);
   if (!res.ok) {
-    const msg = body?.error?.message || body?.message || `HTTP ${res.status}`;
-    const err = new Error(msg);
+    const err = new Error(getErrorMessage(body, `Request failed (HTTP ${res.status}).`));
     err.status = res.status;
     err.body = body;
     throw err;
@@ -41,11 +61,22 @@ export const api = {
   // ── Datasets ───────────────────────────────────────────────────────────────
   getDatasets: (projectId) => request(`/projects/${projectId}/datasets`),
   addDataset: (projectId, formData) =>
-    fetch(`${API_BASE}/projects/${projectId}/datasets`, { method: 'POST', body: formData }).then(async (r) => {
-      const b = await r.json();
-      if (!r.ok) { const e = new Error(b?.error?.message || `HTTP ${r.status}`); e.status = r.status; throw e; }
-      return b;
-    }),
+    fetch(`${API_BASE}/projects/${projectId}/datasets`, { method: 'POST', body: formData })
+      .catch(() => {
+        const error = new Error('Node API unavailable. Start node-server and try again.');
+        error.code = 'NODE_UNAVAILABLE';
+        throw error;
+      })
+      .then(async (r) => {
+        const body = await readResponseBody(r);
+        if (!r.ok) {
+          const error = new Error(getErrorMessage(body, `Upload failed (HTTP ${r.status}).`));
+          error.status = r.status;
+          error.body = body;
+          throw error;
+        }
+        return body;
+      }),
 
   // ── Processing ─────────────────────────────────────────────────────────────
   processProject: (projectId, options = {}) =>

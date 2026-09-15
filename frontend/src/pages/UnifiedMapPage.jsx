@@ -27,6 +27,7 @@ export default function UnifiedMapPage() {
   // Real API map data (used if processing has run)
   const [realMapData, setRealMapData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [mapError, setMapError] = useState('');
 
   // Layer visibility state — 4 independent layers + conflict filter
   const [activeLayers, setActiveLayers] = useState({
@@ -50,12 +51,17 @@ export default function UnifiedMapPage() {
   useEffect(() => {
     if (!activeProject?.id) return;
     startTransition(() => setLoading(true));
+    startTransition(() => setMapError(''));
     api.getMap(activeProject.id)
       .then((res) => {
         const fc = res.map || res.data?.map;
-        if (fc?.features?.length > 0) setRealMapData(fc);
+        if (fc && Array.isArray(fc.features)) setRealMapData(fc);
+        else setRealMapData({ type: 'FeatureCollection', features: [] });
       })
-      .catch(() => { /* silently fall back to mock */ })
+      .catch((error) => {
+        setRealMapData(null);
+        setMapError(error.message || 'Unable to load processed map data.');
+      })
       .finally(() => setLoading(false));
   }, [activeProject]);
 
@@ -82,6 +88,18 @@ export default function UnifiedMapPage() {
   };
   const badge = statusBadge[p?.status] || { label: p?.status || '—', cls: 'text-slate-400 border-slate-500/30' };
 
+  if (!activeProject) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-[#07090e] text-center p-8">
+        <p className="text-base text-slate-300 font-medium">No Project Selected</p>
+        <p className="text-xs text-slate-500 mt-1 mb-4">Select or create a project before opening the unified map.</p>
+        <button onClick={() => navigate('/dashboard')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md">
+          Go to Dashboard
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#07090e]">
 
@@ -106,6 +124,7 @@ export default function UnifiedMapPage() {
               ● {realMapData.features.length} LIVE records
             </span>
           )}
+          {mapError && <span className="text-red-400 text-[11px]">Map data unavailable: {mapError}</span>}
         </div>
 
         {/* Quick layer toggles in sub-header */}
@@ -149,33 +168,11 @@ export default function UnifiedMapPage() {
         <LayerControlPanel
           activeLayers={activeLayers}
           setActiveLayers={setActiveLayers}
-          selectedPairId={p?.pair_id || null}
+          selectedPairId={p?.parcel_id || null}
+          features={realMapData?.features || []}
           onSelectPair={(pairId) => {
-            // synthetic: build a feature to select from the pair_id
-            import('../map/mockGeoData.js').then(({ HARMONIZATION_PAIRS, CADASTRAL_DATASET }) => {
-              const pair = HARMONIZATION_PAIRS.find(hp => hp.pair_id === pairId);
-              if (!pair) return;
-              const cad = CADASTRAL_DATASET.features.find(f => f.id === pair.cadastral_id);
-              if (!cad) return;
-                const feature = {
-                type: 'Feature',
-                id: pair.pair_id,
-                properties: {
-                  parcel_id: pair.cadastral_id,
-                  pair_id: pair.pair_id,
-                  owner_name: pair.cadastral_record.owner,
-                  area: parseInt(pair.cadastral_record.area.replace(/[^0-9]/g, ''), 10),
-                  building_id: pair.building_ids[0] || null,
-                  confidence: pair.confidence_score,
-                  status: pair.status === 'AUTO_MATCHED' ? 'AUTO_VERIFIED' : 'REQUIRES_REVIEW',
-                  sources: [pair.cadastral_id, pair.municipal_id, ...pair.building_ids],
-                  conflicts: pair.flags.map(f => ({ type: f.type, severity: 'MEDIUM', description: f.detail })),
-                },
-                geometry: cad.geometry,
-                };
-                setSelectedFeature(feature);
-                setSelectedMatchId(feature.properties.parcel_id || feature.properties.match_id);
-            });
+            const feature = realMapData?.features?.find((item) => item.properties?.parcel_id === pairId);
+            if (feature) handleFeatureSelect(feature);
           }}
           isCollapsed={layerPanelCollapsed}
           onToggleCollapse={() => setLayerPanelCollapsed(v => !v)}
@@ -190,6 +187,14 @@ export default function UnifiedMapPage() {
             onCoordsChange={setCoords}
             realMapData={realMapData}
           />
+          {!loading && !mapError && (!realMapData || realMapData.features.length === 0) && (
+            <div className="absolute inset-0 z-401 flex items-center justify-center pointer-events-none">
+              <div className="bg-[#0d121c]/95 border border-[#2a3852] rounded-lg px-5 py-4 text-center text-xs">
+                <p className="text-slate-300 font-semibold">No processed map data</p>
+                <p className="text-slate-500 mt-1">Upload datasets and run the processing pipeline first.</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Entity Inspector (§23 mockups) ───────────────────────────────── */}
