@@ -21,7 +21,7 @@ import LayerControlPanel from '../components/LayerControlPanel.jsx';
 import TelemetryBar from '../components/TelemetryBar.jsx';
 
 export default function UnifiedMapPage() {
-  const { activeProject } = useProject();
+  const { activeProject, selectedMatchId, setSelectedMatchId } = useProject();
   const navigate = useNavigate();
 
   // Real API map data (used if processing has run)
@@ -58,6 +58,19 @@ export default function UnifiedMapPage() {
       .catch(() => { /* silently fall back to mock */ })
       .finally(() => setLoading(false));
   }, [activeProject]);
+
+  useEffect(() => {
+    if (!selectedMatchId) return;
+    const feature = realMapData?.features?.find((item) => (
+      item.properties?.parcel_id || item.properties?.match_id
+    ) === selectedMatchId);
+    if (feature) startTransition(() => setSelectedFeature(feature));
+  }, [realMapData, selectedMatchId]);
+
+  const handleFeatureSelect = (feature) => {
+    setSelectedFeature(feature);
+    setSelectedMatchId(feature.properties?.parcel_id || feature.properties?.match_id || null);
+  };
 
   const p = selectedFeature?.properties || null;
   const hasConflicts = p?.conflicts?.length > 0;
@@ -144,7 +157,7 @@ export default function UnifiedMapPage() {
               if (!pair) return;
               const cad = CADASTRAL_DATASET.features.find(f => f.id === pair.cadastral_id);
               if (!cad) return;
-              setSelectedFeature({
+                const feature = {
                 type: 'Feature',
                 id: pair.pair_id,
                 properties: {
@@ -159,7 +172,9 @@ export default function UnifiedMapPage() {
                   conflicts: pair.flags.map(f => ({ type: f.type, severity: 'MEDIUM', description: f.detail })),
                 },
                 geometry: cad.geometry,
-              });
+                };
+                setSelectedFeature(feature);
+                setSelectedMatchId(feature.properties.parcel_id || feature.properties.match_id);
             });
           }}
           isCollapsed={layerPanelCollapsed}
@@ -171,7 +186,7 @@ export default function UnifiedMapPage() {
           <WebGISMap
             activeLayers={activeLayers}
             selectedFeature={selectedFeature}
-            onSelectFeature={setSelectedFeature}
+            onSelectFeature={handleFeatureSelect}
             onCoordsChange={setCoords}
             realMapData={realMapData}
           />

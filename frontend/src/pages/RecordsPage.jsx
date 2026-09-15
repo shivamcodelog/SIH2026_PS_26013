@@ -2,13 +2,13 @@
  * Page 5 — Records Table (§15, §49 Page 5, §50)
  * Searchable, filterable unified land records table with multi-factor match explanations.
  */
-import React, { useState, useEffect, useMemo } from 'react';
+import { startTransition, useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../lib/ProjectContext.jsx';
 import api from '../api/client.js';
 
 export default function RecordsPage() {
-  const { activeProject } = useProject();
+  const { activeProject, selectedMatchId, setSelectedMatchId } = useProject();
   const navigate = useNavigate();
 
   const [records, setRecords] = useState([]);
@@ -20,7 +20,7 @@ export default function RecordsPage() {
 
   useEffect(() => {
     if (!activeProject?.id) return;
-    setLoading(true);
+    startTransition(() => setLoading(true));
     api.getResults(activeProject.id)
       .then((res) => {
         setRecords(res.records || res.data?.records || []);
@@ -41,7 +41,8 @@ export default function RecordsPage() {
         const pidMatch = (r.parcel_id || '').toLowerCase().includes(term);
         const ownerMatch = (r.owner_name || '').toLowerCase().includes(term);
         const bldgMatch = (r.building_id || '').toLowerCase().includes(term);
-        if (!pidMatch && !ownerMatch && !bldgMatch) return false;
+        const propertyMatch = (r.source_record_b || '').toLowerCase().includes(term);
+        if (!pidMatch && !ownerMatch && !bldgMatch && !propertyMatch) return false;
       }
 
       // 2. Status filter
@@ -51,6 +52,8 @@ export default function RecordsPage() {
         if (r.status !== 'REQUIRES_REVIEW') return false;
       } else if (statusFilter === 'CONFLICTS') {
         if (!r.conflicts || r.conflicts.length === 0) return false;
+      } else if (statusFilter === 'MISSING') {
+        if (r.owner_name && r.area != null && r.building_id) return false;
       }
 
       // 3. Confidence range filter (§50: <90%, 90-95%, >95%)
@@ -113,11 +116,11 @@ export default function RecordsPage() {
       {/* Filter Controls (§50) */}
       <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-3.5 flex flex-wrap items-center gap-3 text-xs">
         {/* Search input */}
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-50">
           <span className="absolute left-3 top-2.5 text-slate-500">🔍</span>
           <input
             type="text"
-            placeholder="Search by Parcel ID, Owner Name, or Building ID..."
+            placeholder="Search parcel, property, owner, or building ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-[#111724] border border-[#2a3852] rounded text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500"
@@ -130,7 +133,8 @@ export default function RecordsPage() {
             { id: 'ALL', label: 'All' },
             { id: 'VERIFIED', label: 'Verified' },
             { id: 'REVIEW', label: 'Requires Review' },
-            { id: 'CONFLICTS', label: 'Conflicts Only' },
+            { id: 'CONFLICTS', label: 'Conflicts' },
+            { id: 'MISSING', label: 'Missing Data' },
           ].map((btn) => (
             <button
               key={btn.id}
@@ -180,12 +184,10 @@ export default function RecordsPage() {
               <thead>
                 <tr className="bg-[#111724] border-b border-[#1c2638] text-slate-400 uppercase tracking-wider font-semibold">
                   <th className="px-3.5 py-2.5">Parcel ID</th>
-                  <th className="px-3.5 py-2.5">Owner Name</th>
-                  <th className="px-3.5 py-2.5">Area (m²)</th>
+                  <th className="px-3.5 py-2.5">Owner</th>
+                  <th className="px-3.5 py-2.5">Area</th>
                   <th className="px-3.5 py-2.5">Building</th>
-                  <th className="px-3.5 py-2.5 text-center">Spatial (IoU)</th>
-                  <th className="px-3.5 py-2.5 text-center">Area Match</th>
-                  <th className="px-3.5 py-2.5 text-center">Attr Match</th>
+                  <th className="px-3.5 py-2.5">Sources</th>
                   <th className="px-3.5 py-2.5 text-center">Confidence</th>
                   <th className="px-3.5 py-2.5">Status</th>
                   <th className="px-3.5 py-2.5">Conflicts</th>
@@ -200,7 +202,13 @@ export default function RecordsPage() {
                   return (
                     <tr
                       key={r.match_id || r.parcel_id}
-                      className="hover:bg-[#111724]/70 transition-colors"
+                      onClick={() => {
+                        setSelectedMatchId(r.parcel_id || r.match_id);
+                        navigate('/map');
+                      }}
+                      className={`cursor-pointer hover:bg-[#111724]/70 transition-colors ${
+                        selectedMatchId === (r.parcel_id || r.match_id) ? 'bg-blue-950/30' : ''
+                      }`}
                     >
                       <td className="px-3.5 py-2.5 font-mono font-bold text-blue-400">
                         {r.parcel_id}
@@ -214,20 +222,14 @@ export default function RecordsPage() {
                       <td className="px-3.5 py-2.5 font-mono text-slate-400">
                         {r.building_id || '—'}
                       </td>
-                      <td className="px-3.5 py-2.5 text-center font-mono tabular-nums text-slate-300">
-                        {r.spatial_score !== undefined && r.spatial_score !== null
-                          ? `${(Number(r.spatial_score) * 100).toFixed(1)}%`
-                          : '—'}
-                      </td>
-                      <td className="px-3.5 py-2.5 text-center font-mono tabular-nums text-slate-300">
-                        {r.area_score !== undefined && r.area_score !== null
-                          ? `${(Number(r.area_score) * 100).toFixed(1)}%`
-                          : '—'}
-                      </td>
-                      <td className="px-3.5 py-2.5 text-center font-mono tabular-nums text-slate-300">
-                        {r.attribute_score !== undefined && r.attribute_score !== null
-                          ? `${(Number(r.attribute_score) * 100).toFixed(1)}%`
-                          : '—'}
+                      <td className="px-3.5 py-2.5">
+                        <div className="flex flex-wrap gap-1 max-w-45">
+                          {[r.source_record_a, r.source_record_b].filter(Boolean).map((source) => (
+                            <span key={source} className="px-1.5 py-0.5 bg-[#111724] border border-[#2a3852] rounded text-[10px] font-mono text-slate-300">
+                              {source}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                       <td className="px-3.5 py-2.5 text-center">
                         <span
@@ -268,21 +270,16 @@ export default function RecordsPage() {
                         )}
                       </td>
                       <td className="px-3.5 py-2.5 text-right">
-                        {r.status === 'REQUIRES_REVIEW' ? (
-                          <button
-                            onClick={() => navigate('/review')}
-                            className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded text-[11px] transition-colors"
-                          >
-                            Review →
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => navigate('/map')}
-                            className="text-blue-400 hover:text-blue-300 font-medium text-[11px]"
-                          >
-                            View Map
-                          </button>
-                        )}
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedMatchId(r.parcel_id || r.match_id);
+                            navigate(r.status === 'REQUIRES_REVIEW' ? '/review' : '/map');
+                          }}
+                          className="text-blue-400 hover:text-blue-300 font-medium text-[11px]"
+                        >
+                          {r.status === 'REQUIRES_REVIEW' ? 'Review' : 'View'}
+                        </button>
                       </td>
                     </tr>
                   );
