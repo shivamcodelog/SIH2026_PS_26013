@@ -42,7 +42,7 @@ export default function AppShell() {
       {/* ── Top header bar ───────────────────────────────────────────────── */}
       <header className="shrink-0 h-11 flex items-center px-4 border-b border-[#1c2638] bg-[#0d121c]">
         <span className="text-sm font-semibold tracking-widest text-slate-300 uppercase">
-          LandHarmonize
+          BhoomiSync
         </span>
         {activeProject && (
           <>

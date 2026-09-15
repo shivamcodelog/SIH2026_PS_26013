@@ -167,14 +167,6 @@ export default function ReviewPage() {
         <div className="p-16 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
           <span className="animate-spin">⟳</span> Loading review queue...
         </div>
-      ) : error ? (
-        <div className="bg-[#0d121c] border border-red-500/50 rounded-lg p-12 flex flex-col items-center justify-center text-center">
-          <span className="text-3xl text-red-500 mb-3">⚠</span>
-          <h3 className="text-sm font-semibold text-red-400 mb-1">{error}</h3>
-          <p className="text-xs text-slate-500 max-w-md">
-            Could not retrieve review queue from the backend database. Ensure the Node server and PostgreSQL are running.
-          </p>
-        </div>
       ) : records.length === 0 ? (
         <div className="bg-[#0d121c] border border-[#1c2638] rounded-lg p-12 text-center space-y-3">
           <span className="text-3xl text-emerald-400">✓</span>
