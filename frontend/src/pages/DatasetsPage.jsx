@@ -41,6 +41,7 @@ function DatasetRow({ ds }) {
 function UploadCard({ sourceType, projectId, onUploaded }) {
   const [status, setStatus] = useState('idle'); // idle | uploading | success | error
   const [message, setMessage] = useState('');
+  const [aiSuggestions, setAiSuggestions] = useState(null);
   const inputRef = useRef(null);
 
   const handleFile = useCallback(async (file) => {
@@ -52,11 +53,30 @@ function UploadCard({ sourceType, projectId, onUploaded }) {
     }
     setStatus('uploading');
     setMessage('');
+    setAiSuggestions(null);
     try {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('sourceType', sourceType.key);
       fd.append('name', `${sourceType.label} — ${file.name}`);
+      
+      // Attempt to read file to get headers for AI
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          const properties = json.features?.[0]?.properties || {};
+          const headers = Object.keys(properties);
+          const aiRes = await api.getSchemaMappingSuggestions(headers);
+          if (aiRes.suggestions && Object.keys(aiRes.suggestions).length > 0) {
+            setAiSuggestions(aiRes.suggestions);
+          }
+        } catch (err) {
+          console.warn('Could not parse GeoJSON for AI suggestions');
+        }
+      };
+      reader.readAsText(file.slice(0, 1024 * 50)); // read first 50kb for speed
+
       await api.addDataset(projectId, fd);
       setStatus('success');
       setMessage(`Uploaded: ${file.name}`);
@@ -98,7 +118,27 @@ function UploadCard({ sourceType, projectId, onUploaded }) {
         </div>
       )}
       {status === 'success' && (
-        <p className="text-xs text-emerald-400 mb-3 font-medium">✓ {message}</p>
+        <div className="mb-3 space-y-2">
+          <p className="text-xs text-emerald-400 font-medium">✓ {message}</p>
+          {aiSuggestions && (
+            <div className="p-2.5 rounded-lg bg-[#111724] border border-blue-900/40 mt-2">
+              <h4 className="text-[10px] uppercase tracking-widest text-blue-400 font-semibold mb-1.5 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                AI Schema Mapping
+              </h4>
+              <ul className="text-xs text-slate-300 space-y-1 font-mono">
+                {Object.entries(aiSuggestions).map(([from, to]) => (
+                  <li key={from} className="flex items-center gap-2">
+                    <span className="opacity-60 truncate w-16">{from}</span> 
+                    <span className="text-blue-500/50">→</span> 
+                    <span className="text-blue-300 truncate">{to}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[9px] text-slate-500 mt-1.5">Auto-mapped by AI Assistant</p>
+            </div>
+          )}
+        </div>
       )}
       {status === 'error' && (
         <p className="text-xs text-red-400 mb-3 font-medium">✗ {message}</p>

@@ -1,4 +1,5 @@
 import { projectService } from '../services/projectService.js';
+import { aiService } from '../services/aiService.js';
 import { successResponse, errorResponse } from '../types/contracts.js';
 
 export const createProject = async (req, res, next) => {
@@ -182,6 +183,35 @@ export const exportCSV = async (req, res, next) => {
     res.setHeader('Content-Disposition', `attachment; filename="project_${id}_results.csv"`);
     res.setHeader('Content-Type', 'text/csv');
     return res.status(200).send(csvContent);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const explainConflict = async (req, res, next) => {
+  try {
+    const recordData = req.body.recordData; 
+    
+    if (!recordData) {
+      return res.status(400).json(errorResponse('recordData is required', 400));
+    }
+
+    const explanation = await aiService.explainConflict(recordData);
+    return res.status(200).json(successResponse(explanation));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const suggestMapping = async (req, res, next) => {
+  try {
+    const { headers } = req.body;
+    if (!headers || !Array.isArray(headers)) {
+      return res.status(400).json(errorResponse('headers array is required', 400));
+    }
+
+    const suggestions = await aiService.suggestSchemaMapping(headers);
+    return res.status(200).json(successResponse(suggestions));
   } catch (err) {
     next(err);
   }

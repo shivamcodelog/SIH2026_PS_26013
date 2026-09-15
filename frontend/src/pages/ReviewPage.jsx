@@ -50,6 +50,26 @@ export default function ReviewPage() {
     return records.find((r) => r.match_id === selectedRecordId) || records[0] || null;
   }, [records, selectedRecordId]);
 
+  const [aiExplanation, setAiExplanation] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (!activeRecord) {
+      setAiExplanation('');
+      return;
+    }
+    setAiLoading(true);
+    api.getConflictExplanation(activeRecord)
+      .then(res => {
+        setAiExplanation(res.data?.explanation || res.explanation || 'Explanation unavailable.');
+      })
+      .catch(err => {
+        console.error('AI Error:', err);
+        setAiExplanation('Failed to fetch AI explanation.');
+      })
+      .finally(() => setAiLoading(false));
+  }, [activeRecord]);
+
   // Handle adjudication decision submission
   const handleDecision = async (decisionType) => {
     if (!activeRecord) return;
@@ -275,6 +295,23 @@ export default function ReviewPage() {
                       </tr>
                     </tbody>
                   </table>
+                </div>
+
+                {/* AI Conflict Explanation (Mission 16) */}
+                <div className="bg-[#111724]/60 border border-blue-900/30 rounded-lg p-4 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500/50"></div>
+                  <h3 className="text-xs uppercase tracking-widest text-blue-400 font-semibold mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                    AI Assistant Explanation
+                  </h3>
+                  {aiLoading ? (
+                    <p className="text-sm text-slate-500 italic animate-pulse">Analyzing conflicts and compiling explanation...</p>
+                  ) : (
+                    <p className="text-sm text-slate-300 leading-relaxed font-serif tracking-wide">{aiExplanation || 'No explanation available.'}</p>
+                  )}
+                  <p className="text-[10px] text-slate-500 mt-2 uppercase tracking-wide opacity-70">
+                    * AI suggestions are non-authoritative. Final decision requires human verification.
+                  </p>
                 </div>
 
                 {/* Score Breakdown Bars (§10, §31) */}

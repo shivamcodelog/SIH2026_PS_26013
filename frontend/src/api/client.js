@@ -126,6 +126,13 @@ export const api = {
   // ── Reviews ────────────────────────────────────────────────────────────────
   postDecision: (matchId, body) =>
     request(`/reviews/${matchId}/decision`, { method: 'POST', body: JSON.stringify(body) }),
+
+  // ── AI Assistance ──────────────────────────────────────────────────────────
+  getConflictExplanation: (recordData) =>
+    request(`/ai/explain-conflict`, { method: 'POST', body: JSON.stringify({ recordData }) }),
+    
+  getSchemaMappingSuggestions: (headers) =>
+    request(`/ai/suggest-mapping`, { method: 'POST', body: JSON.stringify({ headers }) }),
 };
 
 export default api;
