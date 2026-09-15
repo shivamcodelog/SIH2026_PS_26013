@@ -12,6 +12,17 @@ export default function LayerControlPanel({
     setActiveLayers(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const isolateLayer = (key) => {
+    setActiveLayers(prev => ({
+      ...prev,
+      unified: key === 'unified',
+      cadastral: key === 'cadastral',
+      municipal: key === 'municipal',
+      drone: key === 'drone',
+      conflictsOnly: false,
+    }));
+  };
+
   const setFilter = (type) => {
     if (type === 'conflicts') {
       setActiveLayers(prev => ({ ...prev, conflictsOnly: true }));
@@ -85,11 +96,11 @@ export default function LayerControlPanel({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-slate-200">1. Cadastral Parcels</span>
-                  <span className="w-2.5 h-2.5 rounded-sm bg-blue-500 border border-blue-400"></span>
+                  <button type="button" onClick={(event) => { event.preventDefault(); isolateLayer('cadastral'); }} title="View cadastral canvas only" className="text-[9px] uppercase tracking-wide text-blue-300 hover:text-white">Only</button>
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                   <span>State Land Records</span>
-                  <span className="text-blue-400">{features.length} Parcels</span>
+                  <span className="text-blue-400">{realMapData?.cadastral?.features?.length ?? features.length} Parcels</span>
                 </div>
               </div>
             </label>
@@ -109,11 +120,11 @@ export default function LayerControlPanel({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-slate-200">2. Municipal Tax Plots</span>
-                  <span className="w-2.5 h-2.5 rounded-sm bg-amber-500 border border-amber-400"></span>
+                  <button type="button" onClick={(event) => { event.preventDefault(); isolateLayer('municipal'); }} title="View municipal canvas only" className="text-[9px] uppercase tracking-wide text-amber-300 hover:text-white">Only</button>
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                   <span>Tax Assessment Board</span>
-                  <span className="text-amber-400">{features.length} Plots</span>
+                  <span className="text-amber-400">{realMapData?.municipal?.features?.length ?? features.length} Plots</span>
                 </div>
               </div>
             </label>
@@ -133,11 +144,11 @@ export default function LayerControlPanel({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-slate-200">3. Drone Footprints</span>
-                  <span className="w-2.5 h-2.5 rounded-sm bg-cyan-500 border border-cyan-400"></span>
+                  <button type="button" onClick={(event) => { event.preventDefault(); isolateLayer('drone'); }} title="View drone footprint canvas only" className="text-[9px] uppercase tracking-wide text-cyan-300 hover:text-white">Only</button>
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                   <span>UAV Photogrammetry</span>
-                  <span className="text-cyan-400">0 Structures</span>
+                  <span className="text-cyan-400">{realMapData?.drone?.features?.length ?? 0} Structures</span>
                 </div>
               </div>
             </label>

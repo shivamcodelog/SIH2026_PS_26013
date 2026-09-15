@@ -312,3 +312,7 @@ Never: rebuild the whole stack because it's easier; add Kafka/Kubernetes/Celery/
 8. Future-scope (24) — last, and only if everything above is solid
 
 Stop wherever time runs out. Do not skip ahead to a later, flashier item at the cost of an earlier one still being broken.
+
+
+
+python -m uvicorn app.main:app --app-dir geo-engine --host 127.0.0.1 --port 8000 --reload

@@ -54,7 +54,9 @@ export const LAYER_STYLES = {
     conflict:  { color: '#ef4444', weight: 3,   fillColor: '#ef4444', fillOpacity: 0.28, opacity: 1,   dashArray: '4 2' },
     selected:  { color: '#38bdf8', weight: 4,   fillColor: '#38bdf8', fillOpacity: 0.40, opacity: 1 },
   },
-  cadastral: { color: '#3b82f6', weight: 1.5, fillColor: '#1d4ed8', fillOpacity: 0.15, opacity: 0.9 },
-  municipal: { color: '#d97706', weight: 1.5, fillColor: '#f59e0b', fillOpacity: 0.10, opacity: 0.9, dashArray: '4 4' },
-  drone:     { color: '#06b6d4', weight: 1.5, fillColor: '#0891b2', fillOpacity: 0.45, opacity: 0.9 },
+  // Source canvases use deliberately different visual languages so they remain
+  // readable when overlaid, and still make sense when isolated.
+  cadastral: { color: '#60a5fa', weight: 2.5, fillColor: '#2563eb', fillOpacity: 0.18, opacity: 1 },
+  municipal: { color: '#fbbf24', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.14, opacity: 1, dashArray: '8 5' },
+  drone:     { color: '#22d3ee', weight: 2, fillColor: '#0891b2', fillOpacity: 0.38, opacity: 1, dashArray: '2 3' },
 };

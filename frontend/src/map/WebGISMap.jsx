@@ -32,6 +32,8 @@ function buildUnifiedFeatures(realMapData) {
 }
 
 function buildSourceFeatures(realMapData, source) {
+  if (realMapData?.[source]?.features) return realMapData[source];
+
   const features = (realMapData?.features || []).map((feature) => {
     const properties = feature.properties || {};
     const geometry = source === 'municipal' ? properties.source_geometry_b : feature.geometry;
@@ -198,7 +200,7 @@ export default function WebGISMap({
     }
 
     // ── 2. Cadastral (blue source boundaries) ─────────────────────────────────
-    if (activeLayers.cadastral && !activeLayers.conflictsOnly && realMapData?.cadastral) {
+    if (activeLayers.cadastral && !activeLayers.conflictsOnly && cadastralData.features.length) {
       const s = LAYER_STYLES.cadastral;
       const cadLayer = L.geoJSON(cadastralData, {
         pane: 'sourceOverlayPane',
@@ -223,7 +225,7 @@ export default function WebGISMap({
     }
 
     // ── 3. Municipal (amber dashed source boundaries) ─────────────────────────
-    if (activeLayers.municipal && !activeLayers.conflictsOnly && realMapData?.municipal) {
+    if (activeLayers.municipal && !activeLayers.conflictsOnly && municipalData.features.length) {
       const s = LAYER_STYLES.municipal;
       const munLayer = L.geoJSON(municipalData, {
         pane: 'sourceOverlayPane',
@@ -239,7 +241,7 @@ export default function WebGISMap({
     }
 
     // ── 4. Drone Building Footprints (cyan filled) ────────────────────────────
-    if (activeLayers.drone && !activeLayers.conflictsOnly && realMapData?.drone) {
+    if (activeLayers.drone && !activeLayers.conflictsOnly && realMapData?.drone?.features?.length) {
       const s = LAYER_STYLES.drone;
       const droneLayer = L.geoJSON(realMapData.drone, {
         pane: 'sourceOverlayPane',

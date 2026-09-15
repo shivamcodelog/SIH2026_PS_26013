@@ -520,6 +520,60 @@ export class ProjectService {
 
     const res = await query(sql, [projectId]);
 
+    // Return each original dataset as its own GeoJSON canvas as well as the
+    // harmonized matches below. This lets the frontend inspect one source at
+    // a time without reconstructing drone footprints from unified parcels.
+    const sourceRes = await query(`
+      SELECT
+        r.id as source_record_id,
+        r.parcel_id,
+        r.owner_name,
+        r.area,
+        r.geometry,
+        r.normalized_attributes,
+        d.source_type
+      FROM records r
+      JOIN datasets d ON d.id = r.dataset_id
+      WHERE d.project_id = $1
+      ORDER BY r.id
+    `, [projectId]);
+
+    const sourceCollections = {
+      cadastral: { type: 'FeatureCollection', features: [] },
+      municipal: { type: 'FeatureCollection', features: [] },
+      drone: { type: 'FeatureCollection', features: [] },
+    };
+
+    sourceRes.rows.forEach((row) => {
+      const source = String(row.source_type || '').toLowerCase();
+      if (!sourceCollections[source]) return;
+
+      let geometry = row.geometry;
+      try {
+        geometry = typeof geometry === 'string' ? JSON.parse(geometry) : geometry;
+      } catch {
+        geometry = null;
+      }
+      if (!geometry) return;
+
+      const attributes = row.normalized_attributes || {};
+      sourceCollections[source].features.push({
+        type: 'Feature',
+        id: row.source_record_id,
+        geometry,
+        properties: {
+          source_record_id: row.source_record_id,
+          parcel_id: row.parcel_id,
+          owner_name: row.owner_name,
+          area: row.area,
+          building_id: attributes.building_id || attributes.id,
+          height_meters: attributes.height_meters || attributes.height,
+          floors: attributes.floors,
+          footprint_area: attributes.footprint_area || row.area,
+        },
+      });
+    });
+
     const features = res.rows.map(row => {
       let geom = null;
       let geomB = null;
@@ -561,7 +615,8 @@ export class ProjectService {
 
     return {
       type: 'FeatureCollection',
-      features
+      features,
+      ...sourceCollections,
     };
   }
 
