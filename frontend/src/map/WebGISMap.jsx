@@ -194,6 +194,22 @@ export default function WebGISMap({
 
   }, [activeLayers, selectedPairId, onSelectPair]);
 
+  // Focus on selected feature
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !selectedPairId) return;
+
+    const pair = HARMONIZATION_PAIRS.find(p => p.pair_id === selectedPairId);
+    if (!pair) return;
+
+    const cadastralFeature = CADASTRAL_DATASET.features.find(f => f.id === pair.cadastral_id);
+    if (cadastralFeature) {
+      const geoJsonLayer = L.geoJSON(cadastralFeature);
+      const bounds = geoJsonLayer.getBounds();
+      map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8, maxZoom: 18 });
+    }
+  }, [selectedPairId]);
+
   // Reset to default extent
   const handleResetExtent = () => {
     if (mapInstanceRef.current) {
